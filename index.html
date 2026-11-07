@@ -1,343 +1,404 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PawMatch | Premium Shelter Management</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap CSS -->
+    <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(), geolocation=()">
+    <title>PawMatch | Enterprise Shelter Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-green: #0a5c4a;
-            --primary-hover: #084839;
-            --bg-cream: #f8f9fa;
-            --text-main: #1a1a1a;
-            --text-muted: #6b7280;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-cream);
-            color: var(--text-main);
-            overflow-x: hidden;
-            margin: 0;
-        }
-
-        /* Layout & Sidebar */
+        :root { --primary: #0a5c4a; --primary-hover: #084839; --bg-body: #f8f9fa; --bg-surface: #fff; --text-main: #1a1a1a; --text-muted: #6b7280; --border: #e5e7eb; --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.05); --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1); --glass-bg: rgba(255,255,255,0.85); }
+        [data-bs-theme="dark"] { --primary: #10b981; --primary-hover: #059669; --bg-body: #0f172a; --bg-surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155; --glass-bg: rgba(30,41,59,0.85); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text-main); overflow-x: hidden; margin: 0; transition: .3s; }
         #wrapper { display: flex; min-height: 100vh; }
-        #sidebar-wrapper {
-            min-width: 260px; max-width: 260px;
-            background-color: var(--primary-green);
-            color: white; display: flex; flex-direction: column;
-        }
-        .sidebar-heading {
-            padding: 24px; font-size: 1.5rem; font-weight: 800;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; gap: 10px;
-        }
-        #sidebar-wrapper .nav-link {
-            color: rgba(255, 255, 255, 0.7); padding: 16px 24px; font-weight: 600;
-            display: flex; align-items: center; gap: 12px;
-            border-left: 4px solid transparent; transition: 0.2s; text-decoration: none; cursor: pointer;
-        }
-        #sidebar-wrapper .nav-link:hover, #sidebar-wrapper .nav-link.active {
-            color: white; background-color: rgba(255, 255, 255, 0.05); border-left-color: white;
-        }
-        .user-profile {
-            margin-top: auto; padding: 24px; border-top: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.8); font-size: 0.9rem;
-        }
-
-        /* Main Content */
-        #page-content-wrapper {
-            flex: 1; background-color: var(--bg-cream);
-            display: flex; flex-direction: column; min-width: 0;
-        }
-        .top-navbar {
-            background-color: white !important; border-bottom: 1px solid #e5e7eb;
-            padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .content-area { padding: 32px; }
-
-        /* Components */
-        .btn-primary-green {
-            background-color: var(--primary-green); color: white; font-weight: 600;
-            border: none; padding: 10px 24px; border-radius: 50px; transition: 0.2s;
-        }
-        .btn-primary-green:hover { background-color: var(--primary-hover); color: white; transform: translateY(-1px); }
-        .btn-outline-green {
-            color: var(--primary-green); border: 1px solid var(--primary-green);
-            background: transparent; font-weight: 600; padding: 10px 24px; border-radius: 50px;
-        }
-        .btn-outline-green:hover { background: var(--primary-green); color: white; }
-        
-        .form-control, .form-select { border-radius: 8px; padding: 12px 16px; border: 1px solid #e5e7eb; }
-        .form-control:focus, .form-select:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(10, 92, 74, 0.1); }
-
-        .stat-card, .chart-card, .table-container {
-            background: white; border-radius: 16px; padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6;
-        }
-        .stat-number { font-size: 2.5rem; font-weight: 800; margin: 8px 0 0 0; color: var(--text-main); }
-        .chart-container { position: relative; height: 300px; width: 100%; }
-
-        /* Animal Cards */
-        .animal-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: 0.3s; height: 100%; cursor: pointer;
-        }
-        .animal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: var(--primary-green); }
+        #sidebar { min-width: 260px; max-width: 260px; background: var(--primary); color: white; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,.1); z-index: 10; overflow-y: auto; height: 100vh; position: sticky; top: 0; }
+        .sidebar-heading { padding: 24px; font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 10px; }
+        .sidebar-group-label { padding: 16px 24px 8px; font-size: .7rem; font-weight: 800; text-transform: uppercase; color: rgba(255,255,255,.4); letter-spacing: 1px; }
+        #sidebar .nav-link { color: rgba(255,255,255,.7); padding: 10px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-left: 4px solid transparent; transition: .2s; text-decoration: none; cursor: pointer; font-size: .9rem; }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active { color: white; background: rgba(255,255,255,.1); border-left-color: white; }
+        .user-profile { margin-top: auto; padding: 24px; border-top: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.9); font-size: .9rem; cursor: pointer; }
+        #page-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .topbar { background: var(--glass-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .content-area { padding: 32px; animation: fadeIn .4s ease-out; flex: 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+        .btn-primary-green { background: var(--primary); color: white; font-weight: 600; border: none; padding: 10px 24px; border-radius: 50px; transition: .2s; }
+        .btn-primary-green:hover { background: var(--primary-hover); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,.3); }
+        .btn-outline-green { color: var(--primary); border: 1px solid var(--primary); background: transparent; font-weight: 600; padding: 10px 24px; border-radius: 50px; }
+        .btn-outline-green:hover { background: var(--primary); color: white; }
+        .form-control, .form-select { border-radius: 8px; padding: 12px 16px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); }
+        .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16,185,129,.1); }
+        .stat-card, .chart-card, .table-container { background: var(--bg-surface); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .stat-number { font-size: 2.5rem; font-weight: 800; margin: 8px 0 0; color: var(--text-main); }
+        .chart-container { position: relative; height: 280px; width: 100%; }
+        .animal-card { background: var(--bg-surface); border-radius: 20px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); transition: .3s; height: 100%; cursor: pointer; }
+        .animal-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--primary); }
         .animal-img { width: 100%; height: 220px; object-fit: cover; background: #eaeaea; }
         .animal-body { padding: 20px; }
-        
-        .status-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 50px; }
+        .status-badge { font-size: .75rem; font-weight: 700; padding: 6px 12px; border-radius: 50px; display: inline-block; }
         .status-Available { background: #d1fae5; color: #065f46; }
         .status-UnderReview { background: #fef3c7; color: #92400e; }
         .status-Adopted { background: #dbeafe; color: #1e40af; }
-        
-        .tag-badge { background: #f3f4f6; color: #4b5563; font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
-
-        /* Detail View Timeline */
+        .status-Fostered { background: #e0e7ff; color: #3730a3; }
+        .status-Quarantine { background: #fee2e2; color: #991b1b; }
+        .status-Reserved { background: #fce7f3; color: #9d174d; }
+        .status-AdoptionPending { background: #fef3c7; color: #92400e; }
+        .status-UnderMedicalTreatment { background: #fee2e2; color: #991b1b; }
+        .status-Approved { background: #d1fae5; color: #065f46; }
+        .status-Pending { background: #fef3c7; color: #92400e; }
+        .status-VisitScheduled { background: #dbeafe; color: #1e40af; }
+        .status-Rejected { background: #fee2e2; color: #991b1b; }
+        .status-Ongoing { background: #dbeafe; color: #1e40af; }
+        .status-Completed { background: #d1fae5; color: #065f46; }
+        .status-Overdue { background: #fee2e2; color: #991b1b; }
+        .status-DueToday { background: #fef3c7; color: #92400e; }
+        .status-Upcoming { background: #dbeafe; color: #1e40af; }
+        .status-Due { background: #fef3c7; color: #92400e; }
+        .status-Done { background: #d1fae5; color: #065f46; }
+        .status-Searching { background: #fef3c7; color: #92400e; }
+        .status-InShelter { background: #dbeafe; color: #1e40af; }
+        .status-Reunited { background: #d1fae5; color: #065f46; }
+        .status-Matched { background: #e0e7ff; color: #3730a3; }
+        .status-Active { background: #d1fae5; color: #065f46; }
+        .status-Inactive { background: #f3f4f6; color: #374151; }
+        .status-Full { background: #fee2e2; color: #991b1b; }
+        .status-LowStock { background: #fee2e2; color: #991b1b; }
+        .status-InStock { background: #d1fae5; color: #065f46; }
+        .status-Blacklisted { background: #fee2e2; color: #991b1b; }
+        .status-OnLeave { background: #fef3c7; color: #92400e; }
+        .tag-badge { background: var(--bg-body); color: var(--text-muted); font-size: .75rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); }
+        .kanban-board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; align-items: flex-start; }
+        .kanban-col { min-width: 300px; background: var(--bg-body); border-radius: 16px; padding: 16px; border: 1px solid var(--border); }
+        .kanban-card { background: var(--bg-surface); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
         .timeline { position: relative; padding-left: 30px; }
-        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
         .timeline-item { position: relative; margin-bottom: 24px; }
-        .timeline-icon {
-            position: absolute; left: -30px; top: 2px; width: 18px; height: 18px;
-            border-radius: 50%; background: var(--primary-green); border: 3px solid white;
-            box-shadow: 0 0 0 2px var(--primary-green);
-        }
-        .timeline-date { font-size: 0.85rem; font-weight: 700; color: var(--primary-green); margin-bottom: 4px; }
-        .timeline-title { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
-        .timeline-desc { font-size: 0.9rem; color: var(--text-muted); }
-
-        .profile-header-card { background: white; border-radius: 16px; padding: 32px; border: 1px solid #f3f4f6; margin-bottom: 24px; }
+        .timeline-icon { position: absolute; left: -30px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-surface); box-shadow: 0 0 0 2px var(--primary); }
         .profile-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; }
+        .photo-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 24px; text-align: center; background: var(--bg-body); cursor: pointer; position: relative; overflow: hidden; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .photo-preview { width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; display: none; }
+        #webcam-feed { width: 100%; border-radius: 8px; display: none; background: #000; }
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; font-weight: 600; border: none; border-radius: 50px; padding: 8px 16px; }
+        #cropper-image { max-width: 100%; max-height: 60vh; display: block; }
+        .table-container { overflow: hidden; padding: 0; }
+        .table { margin: 0; color: var(--text-main); }
+        .table th { background: var(--bg-body); border-bottom: 2px solid var(--border); padding: 16px; font-weight: 700; color: var(--text-muted); font-size: .85rem; text-transform: uppercase; }
+        .table td { padding: 16px; vertical-align: middle; border-bottom: 1px solid var(--border); }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 1055; display: flex; flex-direction: column; gap: 10px; }
+        .custom-toast { background: var(--bg-surface); border-left: 4px solid var(--primary); box-shadow: var(--shadow-md); border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 12px; animation: slideIn .3s forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0;} to { transform: translateX(0); opacity: 1;} }
+        .activity-item { display: flex; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .activity-item:last-child { border-bottom: none; }
+        .breadcrumb-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .floating-call { position: fixed; bottom: 24px; left: 24px; z-index: 1000; background: var(--primary); color: white; border: none; border-radius: 50px; padding: 14px 24px; font-weight: 700; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 10px; }
+        .floating-call:hover { background: var(--primary-hover); color: white; }
+        .contact-footer { background: var(--bg-surface); border-top: 1px solid var(--border); padding: 32px; margin-top: 32px; border-radius: 20px; }
+        .payment-mask { font-family: monospace; background: var(--bg-body); padding: 2px 8px; border-radius: 4px; font-size: .85rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .detail-label { color: var(--text-muted); font-weight: 600; }
+        .detail-value { font-weight: 700; text-align: right; max-width: 60%; }
+        .offcanvas { background: var(--bg-surface); color: var(--text-main); width: 600px !important; max-width: 90vw !important; }
+        .drawer-section { margin-top: 24px; }
+        .drawer-section h6 { font-weight: 800; font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+        .state-overdue { border-left: 4px solid #ef4444 !important; padding-left: 12px; }
+        .state-today { border-left: 4px solid #f59e0b !important; padding-left: 12px; }
+        .state-upcoming { border-left: 4px solid #3b82f6 !important; padding-left: 12px; }
+        .seed-status { position: fixed; top: 80px; right: 24px; z-index: 9999; padding: 12px 20px; border-radius: 8px; font-size: .85rem; font-weight: 600; display: none; }
+        .seed-status.show { display: block; }
+        .seed-status.success { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .seed-status.error { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+        
+        /* AI Image Grid */
+        .ai-image-option { position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; transition: .2s; border: 2px solid transparent; }
+        .ai-image-option img { width: 100%; height: 120px; object-fit: cover; }
+        .ai-image-option:hover { transform: scale(1.02); }
+        .ai-badge { position: absolute; top: 5px; right: 5px; background: rgba(139, 92, 246, 0.9); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; z-index: 10; }
+        
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; left: -260px; transition: .3s; height: 100vh; }
+            #sidebar.show { left: 0; }
+            .floating-call { bottom: 80px; }
+            .topbar { padding: 12px 16px; }
+            .content-area { padding: 16px; }
+        }
     </style>
 </head>
 <body>
+    <div id="seed-status" class="seed-status"></div>
 
     <div id="wrapper">
-        <!-- SIDEBAR -->
-        <div id="sidebar-wrapper">
-            <div class="sidebar-heading">
-                <i class="bi bi-paw-fill"></i> PawMatch
-                <span class="badge bg-light text-dark ms-2" style="font-size: 0.6rem;">STAFF</span>
+        <div id="sidebar">
+            <div class="sidebar-heading"><i class="bi bi-paw-fill"></i> PawMatch</div>
+            <div class="sidebar-group-label">Main</div>
+            <a class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+            <a class="nav-link" data-page="animals"><i class="bi bi-heart-pulse"></i> Animals & Medical</a>
+            <a class="nav-link" data-page="applications"><i class="bi bi-kanban"></i> Applications</a>
+            <a class="nav-link" data-page="visits"><i class="bi bi-calendar-event"></i> Visit Calendar</a>
+            <div class="sidebar-group-label">Operations</div>
+            <a class="nav-link" data-page="adopters"><i class="bi bi-people"></i> Adopter CRM</a>
+            <a class="nav-link" data-page="fosters"><i class="bi bi-house-heart"></i> Foster Care</a>
+            <a class="nav-link" data-page="intake"><i class="bi bi-box-arrow-in-down"></i> Intake & Quarantine</a>
+            <a class="nav-link" data-page="export"><i class="bi bi-globe"></i> Export & Transfer</a>
+            <div class="sidebar-group-label">Care & Admin</div>
+            <a class="nav-link" data-page="reminders"><i class="bi bi-bell"></i> Reminders</a>
+            <a class="nav-link" data-page="followups"><i class="bi bi-telephone"></i> Follow-ups</a>
+            <a class="nav-link" data-page="inventory"><i class="bi bi-box-seam"></i> Inventory</a>
+            <a class="nav-link" data-page="donations"><i class="bi bi-cash-coin"></i> Donations</a>
+            <a class="nav-link" data-page="lostfound"><i class="bi bi-search"></i> Lost & Found</a>
+            <a class="nav-link" data-page="volunteers"><i class="bi bi-person-badge"></i> Volunteers & Staff</a>
+            <a class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+            <div class="user-profile" data-bs-toggle="modal" data-bs-target="#staffModal">
+                <span id="sidebar-staff-name">Loading...</span><br>
+                <small id="sidebar-staff-role">Loading...</small>
             </div>
-            <div class="d-flex flex-column mt-3">
-                <a class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-                <a class="nav-link" data-page="animals"><i class="bi bi-heart-pulse"></i> Animals & Medical</a>
-                <a class="nav-link" data-page="applications"><i class="bi bi-file-earmark-text"></i> Applications</a>
-                <a class="nav-link" data-page="visits"><i class="bi bi-calendar-event"></i> Visit Calendar</a>
-            </div>
-            <div class="user-profile">Neha S. <br><small>Adoption Officer</small></div>
         </div>
 
-        <!-- MAIN CONTENT -->
-        <div id="page-content-wrapper">
-            <div class="top-navbar">
-                <h4 class="mb-0 fw-bold" id="page-title">Good morning, Neha</h4>
-                <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
-                    <i class="bi bi-plus-lg me-1"></i> Add Animal
-                </button>
+        <div id="page-content">
+            <div class="topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-secondary d-md-none" onclick="document.getElementById('sidebar').classList.toggle('show')"><i class="bi bi-list"></i></button>
+                    <h4 class="mb-0 fw-bold" id="page-title">Dashboard</h4>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="#" id="topbar-call-btn" class="btn btn-sm btn-outline-secondary rounded-pill d-none d-md-flex align-items-center gap-1">
+                        <i class="bi bi-telephone-fill"></i> Call us
+                    </a>
+                    <button class="btn btn-outline-secondary rounded-circle" onclick="toggleTheme()" style="width:36px;height:36px;padding:0;">
+                        <i class="bi bi-moon-stars" id="theme-icon"></i>
+                    </button>
+                    <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
+                        <i class="bi bi-plus-lg me-1"></i> Add Animal
+                    </button>
+                </div>
             </div>
 
-            <div class="content-area">
-                
-                <!-- DASHBOARD SECTION -->
+            <div class="content-area" id="content-area">
                 <div id="dashboard-section" class="page-section">
                     <div class="row g-4 mb-4">
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Animals in care</span>
-                                <h2 class="stat-number" id="stat-animals">0</h2>
-                                <span class="text-success fw-bold" style="font-size: 0.85rem;" id="stat-available">0 available</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Pending Applications</span>
-                                <h2 class="stat-number" id="stat-apps">0</h2>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Visits this week</span>
-                                <h2 class="stat-number" id="stat-visits">0</h2>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Adoptions this month</span>
-                                <h2 class="stat-number" style="color: var(--primary-green);">18</h2>
-                            </div>
-                        </div>
+                        <div class="col-md-3"><div class="stat-card"><span class="text-muted fw-bold" style="font-size:.85rem;">Animals in care</span><h2 class="stat-number" id="stat-animals">0</h2><span class="text-success fw-bold" style="font-size:.85rem;" id="stat-available">0 available</span></div></div>
+                        <div class="col-md-3"><div class="stat-card"><span class="text-muted fw-bold" style="font-size:.85rem;">Pending Applications</span><h2 class="stat-number" id="stat-apps">0</h2></div></div>
+                        <div class="col-md-3"><div class="stat-card"><span class="text-muted fw-bold" style="font-size:.85rem;">Visits this week</span><h2 class="stat-number" id="stat-visits">0</h2></div></div>
+                        <div class="col-md-3"><div class="stat-card"><span class="text-muted fw-bold" style="font-size:.85rem;">Adoptions this month</span><h2 class="stat-number text-success" id="stat-adoptions">0</h2></div></div>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="chart-card">
-                                <h6 class="fw-bold mb-4">Animal Status</h6>
-                                <div class="chart-container"><canvas id="statusChart"></canvas></div>
-                            </div>
+                    <div id="missing-photos-container"></div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4"><div class="chart-card"><h6 class="fw-bold mb-4">Animal Status</h6><div class="chart-container"><canvas id="statusChart"></canvas></div></div></div>
+                        <div class="col-md-4"><div class="chart-card"><h6 class="fw-bold mb-4">Adoption Trends (12mo)</h6><div class="chart-container"><canvas id="trendChart"></canvas></div></div></div>
+                        <div class="col-md-4"><div class="chart-card"><h6 class="fw-bold mb-4">Intake vs Adoption</h6><div class="chart-container"><canvas id="intakeChart"></canvas></div></div></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0">Recent Activity</h6>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="loadActivityFeed()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
                         </div>
-                        <div class="col-md-8">
-                            <div class="chart-card">
-                                <h6 class="fw-bold mb-4">Adoption Trends</h6>
-                                <div class="chart-container"><canvas id="trendChart"></canvas></div>
-                            </div>
-                        </div>
+                        <div id="activity-feed" class="d-flex flex-column"></div>
                     </div>
                 </div>
 
-                <!-- ANIMALS GRID SECTION -->
                 <div id="animals-section" class="page-section d-none">
-                    <div class="mb-4">
-                        <input type="text" id="search-animals" class="form-control w-50 shadow-sm" placeholder="Search by name, breed or trait..." onkeyup="filterAnimals()">
+                    <div class="row mb-4 g-3">
+                        <div class="col-md-5"><input type="text" id="search-animals" class="form-control shadow-sm" placeholder="Search by name or breed..." oninput="applyAnimalFilters()"></div>
+                        <div class="col-md-3"><select id="filter-species" class="form-select shadow-sm" onchange="applyAnimalFilters()"><option value="">All Species</option></select></div>
+                        <div class="col-md-3"><select id="filter-status" class="form-select shadow-sm" onchange="applyAnimalFilters()"><option value="">All Statuses</option><option>Available</option><option>Fostered</option><option>Under Medical Treatment</option><option>Quarantine</option><option>Adoption Pending</option><option>Reserved</option></select></div>
+                        <div class="col-md-1"><button class="btn btn-outline-green w-100" onclick="fixMissingPhotos()" title="Fix Missing Photos"><i class="bi bi-image"></i></button></div>
                     </div>
                     <div class="row g-4" id="animals-grid"></div>
                 </div>
 
-                <!-- ANIMAL DETAIL SECTION (NEW) -->
                 <div id="animal-detail-section" class="page-section d-none">
-                    <button class="btn btn-outline-green mb-4" onclick="navigateTo('animals')">
-                        <i class="bi bi-arrow-left me-2"></i> Back to Animals
-                    </button>
-
-                    <div class="profile-header-card">
+                    <div class="breadcrumb-bar">
+                        <button class="btn btn-sm btn-outline-green rounded-pill" onclick="nav('animals')"><i class="bi bi-arrow-left"></i> All Animals</button>
+                        <span class="text-muted">Animals & Medical /</span> <span id="breadcrumb-name">Profile</span>
+                    </div>
+                    <div class="stat-card mb-4">
                         <div class="row g-4">
-                            <div class="col-md-5">
-                                <img id="detail-img" src="" class="profile-img" alt="Animal">
-                            </div>
+                            <div class="col-md-5"><img id="detail-img" src="" class="profile-img"></div>
                             <div class="col-md-7">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h1 class="fw-bold mb-0" id="detail-name">Name</h1>
                                     <span class="status-badge" id="detail-status">Status</span>
                                 </div>
                                 <p class="text-muted fs-5 mb-4" id="detail-meta">Species · Breed · Age</p>
-                                
+                                <div id="detail-regulated" class="d-none alert alert-warning py-2 px-3 small mb-4"><div id="detail-regulated-info"></div></div>
                                 <h5 class="fw-bold mt-4 mb-3">Traits</h5>
                                 <div class="d-flex flex-wrap gap-2 mb-4" id="detail-tags"></div>
-
-                                <h5 class="fw-bold mt-4 mb-3">Adoption Readiness</h5>
-                                <div class="d-flex gap-4">
-                                    <div><i class="bi bi-check-circle-fill text-success"></i> Vaccinated</div>
-                                    <div><i class="bi bi-check-circle-fill text-success"></i> Sterilized</div>
-                                    <div><i class="bi bi-check-circle-fill text-success"></i> Microchipped</div>
-                                </div>
+                                <h5 class="fw-bold mt-4 mb-3">Readiness</h5>
+                                <div class="d-flex gap-4" id="detail-readiness"></div>
                             </div>
                         </div>
                     </div>
+                    <div class="row g-4">
+                        <div class="col-md-8"><div class="stat-card"><h5 class="fw-bold mb-4">Medical Timeline</h5><div class="timeline" id="detail-timeline"></div></div></div>
+                        <div class="col-md-4"><div class="stat-card text-center"><h5 class="fw-bold mb-3">Share Profile</h5><div id="qrcode" class="d-flex justify-content-center mb-3"></div></div></div>
+                    </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="chart-card">
-                                <h5 class="fw-bold mb-4">Medical Timeline</h5>
-                                <div class="timeline" id="detail-timeline">
-                                    <!-- Medical records injected here -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="chart-card">
-                                <h5 class="fw-bold mb-3">Quick Actions</h5>
-                                <button class="btn btn-primary-green w-100 mb-2">Apply for Adoption</button>
-                                <button class="btn btn-outline-green w-100">Schedule Vet Visit</button>
-                            </div>
+                <div id="applications-section" class="page-section d-none">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0">Application Pipeline</h5>
+                        <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#newAppModal"><i class="bi bi-plus-lg"></i> New Application</button>
+                    </div>
+                    <div class="kanban-board">
+                        <div class="kanban-col"><div class="fw-bold text-warning mb-3"><i class="bi bi-hourglass-split"></i> Pending</div><div id="col-pending"></div></div>
+                        <div class="kanban-col"><div class="fw-bold text-info mb-3"><i class="bi bi-search"></i> Under Review</div><div id="col-review"></div></div>
+                        <div class="kanban-col"><div class="fw-bold text-primary mb-3"><i class="bi bi-calendar-check"></i> Visit Scheduled</div><div id="col-visit"></div></div>
+                        <div class="kanban-col"><div class="fw-bold text-success mb-3"><i class="bi bi-check-circle"></i> Approved</div><div id="col-approved"></div></div>
+                        <div class="kanban-col"><div class="fw-bold text-danger mb-3"><i class="bi bi-x-circle"></i> Rejected</div><div id="col-rejected"></div></div>
+                    </div>
+                </div>
+
+                <div id="visits-section" class="page-section d-none">
+                    <div class="row g-4">
+                        <div class="col-md-7"><div class="stat-card"><h5 class="fw-bold mb-4">Upcoming Visits</h5><div id="visits-list"></div></div></div>
+                        <div class="col-md-5"><div class="stat-card"><h5 class="fw-bold mb-4">Book Visit</h5>
+                            <form id="visit-form">
+                                <div class="mb-3"><label class="form-label">Application</label><select class="form-select" id="visit-app-id" required></select></div>
+                                <div class="row g-3 mb-3"><div class="col-6"><label class="form-label">Date</label><input type="date" class="form-control" id="visit-date" required></div><div class="col-6"><label class="form-label">Time</label><input type="time" class="form-control" id="visit-time" required></div></div>
+                                <button type="submit" class="btn btn-primary-green w-100">Book Visit</button>
+                            </form>
+                        </div></div>
+                    </div>
+                </div>
+
+                <div id="export-section" class="page-section d-none">
+                    <div class="alert alert-warning mb-4"><i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Indicative only:</strong> Verify all requirements with official authorities.</div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0">Export Cases</h5>
+                        <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#newExportModal"><i class="bi bi-plus-lg"></i> New Case</button>
+                    </div>
+                    <div class="row g-4" id="export-grid"></div>
+                </div>
+
+                <div id="export-detail-section" class="page-section d-none">
+                    <button class="btn btn-outline-green mb-4 rounded-pill" onclick="nav('export')"><i class="bi bi-arrow-left"></i> Back</button>
+                    <div class="stat-card">
+                        <h3 class="fw-bold mb-4" id="exp-title">Case</h3>
+                        <div class="row g-4">
+                            <div class="col-md-4"><h6 class="fw-bold">Details</h6><div class="detail-row"><span class="detail-label">Animal</span><span class="detail-value" id="exp-animal"></span></div><div class="detail-row"><span class="detail-label">Receiver</span><span class="detail-value" id="exp-receiver"></span></div><div class="detail-row"><span class="detail-label">Destination</span><span class="detail-value" id="exp-dest"></span></div><div class="detail-row"><span class="detail-label">Date</span><span class="detail-value" id="exp-date"></span></div></div>
+                            <div class="col-md-8"><h6 class="fw-bold">Documents</h6><div id="exp-doc-list"></div></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- APPLICATIONS SECTION -->
-                <div id="applications-section" class="page-section d-none">
+                <div id="generic-section" class="page-section d-none">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold mb-0" id="gen-title">Module</h5>
+                        <button class="btn btn-primary-green" onclick="openGenericModal()"><i class="bi bi-plus-lg"></i> Add Record</button>
+                    </div>
                     <div class="table-container">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Applicant</th><th>Animal</th><th>Eligibility</th><th>Status</th><th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applications-table-body"></tbody>
+                        <table class="table table-hover">
+                            <thead id="gen-thead"></thead>
+                            <tbody id="gen-tbody"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- VISITS SECTION -->
-                <div id="visits-section" class="page-section d-none">
+                <div id="settings-section" class="page-section d-none">
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="chart-card">
-                                <h5 class="fw-bold mb-4">Upcoming Visits</h5>
-                                <div id="visits-list" class="d-flex flex-column gap-3"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="chart-card">
-                                <h5 class="fw-bold mb-4">Schedule Visit</h5>
-                                <form id="visit-form">
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Select Application</label>
-                                        <select class="form-select" id="visit-app-id" required></select>
+                            <div class="stat-card">
+                                <h5 class="fw-bold mb-4"><i class="bi bi-person-badge"></i> Identity & Role</h5>
+                                <form id="identity-form">
+                                    <div class="mb-3"><label class="form-label">Owner (honorary)</label><input type="text" class="form-control" id="set-owner" required></div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="set-same-as-owner" checked onchange="toggleOfficerField()">
+                                        <label class="form-check-label">Same as owner</label>
                                     </div>
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-6">
-                                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Date</label>
-                                            <input type="date" class="form-control" id="visit-date" required>
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Time</label>
-                                            <input type="time" class="form-control" id="visit-time" required>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary-green w-100 py-2">Book Visit</button>
+                                    <div class="mb-3" id="officer-field-wrap" style="display:none;"><label class="form-label">Adoption Officer</label><input type="text" class="form-control" id="set-officer-name"></div>
+                                    <button type="submit" class="btn btn-primary-green w-100 mt-2">Save Identity</button>
                                 </form>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <h5 class="fw-bold mb-4"><i class="bi bi-telephone"></i> Contact</h5>
+                                <form id="contact-form">
+                                    <div class="mb-3"><label class="form-label">Phone</label><input type="tel" class="form-control" id="set-phone" required></div>
+                                    <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" id="set-email" required></div>
+                                    <div class="mb-3"><label class="form-label">WhatsApp</label><input type="url" class="form-control" id="set-whatsapp"></div>
+                                    <div class="mb-3"><label class="form-label">Address</label><input type="text" class="form-control" id="set-address" required></div>
+                                    <div class="mb-3"><label class="form-label">Hours</label><input type="text" class="form-control" id="set-hours" required></div>
+                                    <button type="submit" class="btn btn-primary-green w-100">Save Contact</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><div class="stat-card"><h5 class="fw-bold mb-4"><i class="bi bi-database"></i> Data Management</h5><button class="btn btn-warning w-100" onclick="resetData()">Clear All Data & Reseed</button></div></div>
                     </div>
                 </div>
 
+                <div class="contact-footer" id="contact-footer"></div>
             </div>
         </div>
     </div>
 
-    <!-- ADD ANIMAL MODAL -->
-    <div class="modal fade" id="addAnimalModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 16px; border: none;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold">Add New Animal</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <button class="floating-call d-none d-md-flex" id="floating-call-btn"><i class="bi bi-telephone-fill"></i> Call us</button>
+
+    <!-- Modals -->
+    <div class="modal fade" id="staffModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">Edit Profile</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4">
+                    <form id="staff-form">
+                        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" id="staff-name" required></div>
+                        <div class="mb-4"><label class="form-label">Role</label><input type="text" class="form-control" id="staff-role" required></div>
+                        <button type="submit" class="btn btn-primary-green w-100">Save</button>
+                    </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addAnimalModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">Add Animal</h5><button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopAllStreams()"></button></div>
                 <div class="modal-body p-4">
                     <form id="animal-form">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Name</label>
-                            <input type="text" class="form-control" id="animal-name" required>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-bold mb-0">Profile Photo</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-ai" onclick="generatePhotoOptions()"><i class="bi bi-magic"></i> Generate AI</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="regenerate-btn" onclick="generatePhotoOptions()"><i class="bi bi-arrow-clockwise"></i> Regenerate</button>
+                                </div>
+                            </div>
+                            <div id="upload-zone" class="photo-zone" onclick="document.getElementById('file-input').click()">
+                                <div id="upload-placeholder"><i class="bi bi-cloud-arrow-up fs-1 text-muted"></i><p class="mb-1 fw-semibold">Click to upload or drag & drop</p></div>
+                                <img id="photo-preview" class="photo-preview" src="">
+                                <video id="webcam-feed" autoplay playsinline></video>
+                            </div>
+                            <div id="ai-generation-container" class="mt-3 d-none">
+                                <p class="small text-muted mb-2"><i class="bi bi-stars text-warning"></i> Select an image:</p>
+                                <div class="row g-2" id="generated-grid"></div>
+                            </div>
+                            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImageFile(this.files[0])">
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="startWebcam('user')"><i class="bi bi-webcam"></i> Webcam</button>
+                                <button type="button" class="btn btn-sm btn-success d-none" id="capture-btn" onclick="capturePhoto()"><i class="bi bi-check-circle"></i> Capture</button>
+                                <button type="button" class="btn btn-sm btn-outline-warning d-none" id="detect-btn" onclick="detectWithAI()"><i class="bi bi-robot"></i> AI Detect</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removePhoto()"><i class="bi bi-trash"></i> Clear</button>
+                            </div>
+                            <div id="ai-detect-result" class="mt-2 d-none alert alert-info py-2 px-3 small mb-0"></div>
                         </div>
                         <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Species</label>
-                                <select class="form-select" id="animal-species">
-                                    <option>Dog</option><option>Cat</option><option>Rabbit</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Breed</label>
-                                <input type="text" class="form-control" id="animal-breed" required>
-                            </div>
+                            <div class="col-md-4"><label class="form-label">Name</label><input type="text" class="form-control" id="animal-name" required></div>
+                            <div class="col-md-4"><label class="form-label">Species</label><select class="form-select" id="animal-species" onchange="updateBreedList()"></select></div>
+                            <div class="col-md-4"><label class="form-label">Breed</label><input type="text" class="form-control" id="animal-breed" list="breed-list" required><datalist id="breed-list"></datalist></div>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Traits (comma separated)</label>
-                            <input type="text" class="form-control" id="animal-tags" placeholder="e.g. Good with kids, Calm">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3"><label class="form-label">Age (Yr)</label><input type="number" class="form-control" id="animal-age-yr" min="0" required></div>
+                            <div class="col-md-3"><label class="form-label">Age (Mo)</label><input type="number" class="form-control" id="animal-age-mo" min="0" max="11" required></div>
+                            <div class="col-md-3"><label class="form-label">Gender</label><select class="form-select" id="animal-gender" required><option>Male</option><option>Female</option></select></div>
+                            <div class="col-md-3"><label class="form-label">Weight (kg)</label><input type="number" step="0.1" class="form-control" id="animal-weight" required></div>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Traits</label><input type="text" class="form-control" id="animal-tags" placeholder="Playful, Calm"></div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="med-vaccinated"><label class="form-check-label">Vaccinated</label></div></div>
+                            <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="med-sterilized"><label class="form-check-label">Sterilized</label></div></div>
+                            <div class="col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="med-microchipped"><label class="form-check-label">Microchipped</label></div></div>
                         </div>
                         <button type="submit" class="btn btn-primary-green w-100 py-2">Save Animal</button>
                     </form>
@@ -346,340 +407,1191 @@
         </div>
     </div>
 
+    <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">Crop Photo</h5><button type="button" class="btn-close" data-bs-dismiss="modal" onclick="cancelCrop()"></button></div>
+                <div class="modal-body text-center p-4"><div style="max-height:60vh;overflow:hidden;background:#000;border-radius:8px;display:flex;justify-content:center;align-items:center;"><img id="cropper-image" src=""></div></div>
+                <div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-outline-secondary" onclick="cancelCrop()" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-primary-green" onclick="saveCrop()">Crop & Save</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="newAppModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">New Application</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4">
+                    <form id="new-app-form">
+                        <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">Animal</label><select class="form-select" id="app-animal" required></select></div><div class="col-md-6"><label class="form-label">Applicant</label><input type="text" class="form-control" id="app-name" required></div></div>
+                        <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">Phone</label><input type="tel" class="form-control" id="app-phone" required></div><div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" id="app-email" required></div></div>
+                        <div class="mb-4"><label class="form-label">Reason</label><textarea class="form-control" id="app-reason" rows="2" required></textarea></div>
+                        <button type="submit" class="btn btn-primary-green w-100 py-2">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="newExportModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">New Export Case</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4">
+                    <form id="export-form">
+                        <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">Animal</label><select class="form-select" id="exp-animal" required></select></div><div class="col-md-6"><label class="form-label">Country</label><select class="form-select" id="exp-country" required></select></div></div>
+                        <div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">Receiver</label><input type="text" class="form-control" id="exp-receiver-name" required></div><div class="col-md-6"><label class="form-label">Contact</label><input type="text" class="form-control" id="exp-receiver-contact" required></div></div>
+                        <div class="row g-3 mb-4"><div class="col-md-6"><label class="form-label">Transport</label><select class="form-select" id="exp-transport"><option>Air (Cargo)</option><option>Air (In-Cabin)</option><option>Ground</option></select></div><div class="col-md-6"><label class="form-label">Date</label><input type="date" class="form-control" id="exp-date" required></div></div>
+                        <button type="submit" class="btn btn-primary-green w-100 py-2">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="genericModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;">
+                <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold" id="gen-modal-title">Add Record</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4">
+                    <form id="generic-form">
+                        <div class="mb-3"><label class="form-label">Name / Title</label><input type="text" class="form-control" id="g-name" required></div>
+                        <div class="mb-3"><label class="form-label">Category</label><input type="text" class="form-control" id="g-cat" required></div>
+                        <div class="mb-4"><label class="form-label">Status</label><select class="form-select" id="g-status"><option>Active</option><option>Pending</option><option>Completed</option></select></div>
+                        <button type="submit" class="btn btn-primary-green w-100">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="detailDrawer">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="drawer-title">Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body" id="drawer-body"></div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
     <!-- LIBRARIES -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- TensorFlow for AI Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
     <script>
-        // --- 1. DATABASE SETUP (V2 to include Medical Records) ---
-        const db = new Dexie('PawMatchDB_V2');
-        db.version(1).stores({
-            animals: '++id, name, species, breed, status',
-            applications: '++id, adopterName, animalId, status',
-            visits: '++id, applicationId, date, time',
-            medicalRecords: '++id, animalId, date, type, title, description'
+        // ============================================================
+        // ALL RECORDS ARE FICTITIOUS. Invented names, addresses,
+        // phones, emails, IDs and payment data for demonstration only.
+        // ============================================================
+
+        const SPECIES = {
+            "Dog": { breeds: ["Labrador","German Shepherd","Beagle","Pug","Bulldog","Golden Retriever","Poodle","Rottweiler","Saluki","Mixed"] },
+            "Cat": { breeds: ["Domestic Shorthair","Persian","Siamese","Maine Coon","Bengal","Ragdoll","Mixed"] },
+            "Rabbit": { breeds: ["Dutch","Mini Lop","Lionhead","Rex","Mixed"] },
+            "Parrot/Bird": { breeds: ["Parakeet","Cockatiel","Canary","Macaw","Mixed"] },
+            "Hamster": { breeds: ["Syrian","Dwarf","Roborovski","Mixed"] },
+            "Guinea Pig": { breeds: ["American","Abyssinian","Peruvian","Mixed"] },
+            "Turtle": { breeds: ["Red-eared Slider","Box Turtle","Painted","Mixed"] },
+            "Tortoise": { breeds: ["Sulcata","Russian","Hermann's","Mixed"] },
+            "Ferret": { breeds: ["Albino","Sable","Silver","Mixed"] },
+            "Hedgehog": { breeds: ["African Pygmy","Mixed"] },
+            "Chinchilla": { breeds: ["Standard Grey","White","Beige","Mixed"] },
+            "Horse": { breeds: ["Arabian","Thoroughbred","Quarter","Mixed"] },
+            "Goat": { breeds: ["Boer","Nubian","Alpine","Pygmy","Mixed"] },
+            "Cow": { breeds: ["Holstein","Angus","Hereford","Jersey","Mixed"] },
+            "Duck": { breeds: ["Pekin","Mallard","Runner","Mixed"] },
+            "Falcon": { breeds: ["Peregrine","Gyrfalcon","Saker","Mixed"], regulated: true },
+            "Eagle": { breeds: ["Bald","Golden","Mixed"], regulated: true },
+            "Hawk": { breeds: ["Red-tailed","Cooper's","Mixed"], regulated: true },
+            "Owl": { breeds: ["Barn","Great Horned","Snowy","Mixed"], regulated: true },
+            "Camel": { breeds: ["Dromedary","Bactrian","Mixed"], regulated: true }
+        };
+        const COUNTRIES = {
+            "UAE": { reqs: ["Health Cert","Microchip","Rabies Titer","Import Permit"], lastUpdated: "2026-10-01" },
+            "UK": { reqs: ["Health Cert","Microchip","Rabies Vax","Tapeworm"], lastUpdated: "2026-09-15" },
+            "USA": { reqs: ["Health Cert","Rabies Vax","CDC Form"], lastUpdated: "2026-10-10" },
+            "Australia": { reqs: ["Health Cert","Microchip","Titer","Import Permit","Quarantine"], lastUpdated: "2026-08-20" },
+            "Germany": { reqs: ["EU Pet Passport","Microchip","Rabies Vax"], lastUpdated: "2026-10-05" }
+        };
+
+        const db = new Dexie('PawMatchV17');
+        db.version(17).stores({
+            animals: '++id, name, species, status',
+            applications: '++id, adopterName, animalId, status, date',
+            visits: '++id, applicationId, date',
+            medicalRecords: '++id, animalId, date',
+            exports: '++id, animalId, country, status, plannedDate',
+            adopters: '++id, name, status',
+            fosters: '++id, name, status',
+            intake: '++id, name, status',
+            reminders: '++id, name, status',
+            followups: '++id, name, status',
+            inventory: '++id, name, status',
+            donations: '++id, name, amount, date',
+            lostfound: '++id, name, type, status',
+            volunteers: '++id, name, cat, status',
+            activity: '++id, timestamp, action',
+            settings: 'key'
         });
 
-        async function seedDatabase() {
-            const count = await db.animals.count();
-            if (count > 0) return;
+        const now = new Date();
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+        const cm = [1,2,3,4,5,6,7].map(d => new Date(thisYear, thisMonth, d).toISOString());
+        const today = now.toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const in5 = new Date(Date.now() + 5*86400000).toISOString().split('T')[0];
+        const in10 = new Date(Date.now() + 10*86400000).toISOString().split('T')[0];
+        const in20 = new Date(Date.now() + 20*86400000).toISOString().split('T')[0];
 
-            await db.animals.bulkAdd([
-                { name: 'Bruno', species: 'Dog', breed: 'Labrador mix', age: '3 yrs', status: 'Available', tags: ['Good with kids', 'House-trained'], image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Mishti', species: 'Cat', breed: 'Domestic shorthair', age: '1 yr', status: 'Under Review', tags: ['Calm', 'Litter-trained'], image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Sheru', species: 'Dog', breed: 'Indie', age: '5 yrs', status: 'Available', tags: ['Leash-trained', 'Needs yard'], image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Coco', species: 'Rabbit', breed: 'Dutch', age: '2 yrs', status: 'Available', tags: ['Bonded pair', 'Gentle'], image: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Luna', species: 'Cat', breed: 'Persian mix', age: '7 yrs', status: 'Under Review', tags: ['Senior', 'Indoor only'], image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Rocky', species: 'Dog', breed: 'Beagle', age: '8 mos', status: 'Available', tags: ['Playful', 'In training'], image: 'https://images.unsplash.com/photo-1537151608804-ea2d1193d2ea?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Tara', species: 'Dog', breed: 'Indie', age: '2 yrs', status: 'Available', tags: ['Good with cats', 'Vaccinated'], image: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?q=80&w=600&auto=format&fit=crop' },
-                { name: 'Oreo', species: 'Cat', breed: 'Tuxedo', age: '4 mos', status: 'Available', tags: ['Kitten', 'Social'], image: 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?q=80&w=600&auto=format&fit=crop' }
-            ]);
+        const animalData = [
+            ['Bruno','Dog','Labrador',3,0,'Male',28,'Available',true,true,true,'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600','Good with kids','',''],
+            ['Sheru','Dog','Indie',5,0,'Male',18,'Available',true,true,false,'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600','Leash-trained','',''],
+            ['Max','Dog','Saluki',2,6,'Male',20,'Available',true,true,true,'https://images.unsplash.com/photo-1612536057832-2ff7ead58194?w=600','Calm','',''],
+            ['Rocky','Dog','Beagle',0,8,'Male',10,'Fostered',true,false,true,'https://images.unsplash.com/photo-1537151608804-ea2d1193d2ea?w=600','Playful','',''],
+            ['Tara','Dog','Indie',2,0,'Female',15,'Adoption Pending',true,true,true,'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600','Good with cats','',''],
+            ['Bella','Dog','German Shepherd',4,0,'Female',32,'Under Medical Treatment',true,true,true,'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=600','Protective','',''],
+            ['Zoe','Dog','Poodle',1,0,'Female',6,'Quarantine',true,false,false,'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=600','Smart','',''],
+            ['Mishti','Cat','Domestic Shorthair',1,2,'Female',4.2,'Available',true,false,true,'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600','Calm','',''],
+            ['Milo','Cat','Maine Coon',3,0,'Male',7,'Available',true,true,true,'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=600','Large','',''],
+            ['Luna','Cat','Persian',7,0,'Female',3.8,'Under Medical Treatment',true,true,true,'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600','Senior','',''],
+            ['Oreo','Cat','Domestic Shorthair',0,4,'Male',1.8,'Fostered',true,false,false,'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=600','Kitten','',''],
+            ['Bella2','Cat','Siamese',2,0,'Female',4,'Adoption Pending',true,true,true,'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=600','Vocal','',''],
+            ['Coco','Rabbit','Dutch',2,0,'Female',2.1,'Available',false,true,false,'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=600','Gentle','',''],
+            ['Bugs','Rabbit','Mini Lop',1,0,'Male',1.8,'Fostered',false,true,false,'https://images.unsplash.com/photo-1535241749838-299277b6305f?w=600','Playful','',''],
+            ['Snow','Rabbit','Lionhead',3,0,'Female',2.5,'Available',false,true,false,'https://images.unsplash.com/photo-1591382386627-349b692688ff?w=600','Fluffy','',''],
+            ['Polly','Parrot/Bird','Parakeet',1,0,'Female',0.1,'Fostered',false,false,false,'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=600','Vocal','',''],
+            ['Rio','Parrot/Bird','Macaw',5,0,'Male',1.2,'Reserved',false,false,false,'https://images.unsplash.com/photo-1544923408-75c5cef46f14?w=600','Intelligent','',''],
+            ['Chirpy','Parrot/Bird','Cockatiel',2,0,'Female',0.1,'Quarantine',false,false,false,'https://images.unsplash.com/photo-1591608971362-f08b2a75731a?w=600','Whistles','',''],
+            ['Hazel','Hamster','Syrian',0,6,'Female',0.15,'Available',false,false,false,'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=600','Active','',''],
+            ['Pip','Hamster','Dwarf',0,4,'Male',0.05,'Fostered',false,false,false,'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=600','Curious','',''],
+            ['Peanut','Guinea Pig','American',1,1,'Male',0.9,'Available',false,false,false,'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600','Social','',''],
+            ['Waffles','Guinea Pig','Abyssinian',0,8,'Female',0.7,'Available',false,false,false,'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=600','Fluffy','',''],
+            ['Shelly','Turtle','Red-eared Slider',3,0,'Unknown',0.8,'Fostered',false,false,false,'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600','Aquatic','',''],
+            ['Speedy','Turtle','Box Turtle',5,0,'Male',0.5,'Quarantine',false,false,false,'https://images.unsplash.com/photo-1559251606-c623743a6d06?w=600','Slow','',''],
+            ['Tank','Tortoise','Sulcata',8,0,'Male',15,'Available',false,false,false,'https://images.unsplash.com/photo-1615963244664-5b845b2025ee?w=600','Large','',''],
+            ['Sully','Tortoise','Russian',4,0,'Female',2,'Under Medical Treatment',false,false,false,'https://images.unsplash.com/photo-1590766940554-172cead3b6cb?w=600','Burrowing','',''],
+            ['Dash','Ferret','Sable',2,0,'Male',1.2,'Under Medical Treatment',true,true,true,'https://images.unsplash.com/photo-1549480017-d76466a4b7e8?w=600','Energetic','',''],
+            ['Sonic','Hedgehog','African Pygmy',1,0,'Male',0.4,'Available',false,false,false,'https://images.unsplash.com/photo-1520081194837-68d16e0d6e72?w=600','Nocturnal','',''],
+            ['Nibbles','Chinchilla','Standard Grey',2,0,'Female',0.5,'Fostered',false,false,false,'https://images.unsplash.com/photo-1558017222-37d4a1c1b36b?w=600','Soft fur','',''],
+            ['Spirit','Horse','Arabian',5,0,'Female',400,'Available',true,false,true,'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600','Riding','',''],
+            ['Thunder','Horse','Thoroughbred',6,0,'Male',450,'Reserved',true,false,true,'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600','Fast','',''],
+            ['Billy','Goat','Pygmy',1,0,'Male',20,'Adoption Pending',true,true,false,'https://images.unsplash.com/photo-1524024973431-2ad916746881?w=600','Friendly','',''],
+            ['Gruff','Goat','Boer',3,0,'Male',60,'Under Medical Treatment',true,true,false,'https://images.unsplash.com/photo-1533318087102-b3cd3e5a6a5b?w=600','Large','',''],
+            ['Daisy','Cow','Jersey',4,0,'Female',350,'Under Medical Treatment',true,false,true,'https://images.unsplash.com/photo-1546445317-29f4545e9d53?w=600','Calm','',''],
+            ['Quackers','Duck','Pekin',1,0,'Female',2.5,'Available',false,false,false,'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?w=600','Water-loving','',''],
+            ['Apollo','Falcon','Peregrine',2,0,'Male',0.8,'Adoption Pending',false,false,true,'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=600','Regulated','CITES-98765','Captive Bred'],
+            ['Sky','Eagle','Bald',3,0,'Female',4,'Quarantine',false,false,true,'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=600','Majestic','CITES-45678','Wildlife Rescue'],
+            ['Hunter','Hawk','Red-tailed',2,0,'Male',1.2,'Adoption Pending',false,false,true,'https://images.unsplash.com/photo-1591608971362-f08b2a75731a?w=600','Alert','CITES-33333','Captive Bred'],
+            ['Hedwig','Owl','Barn',4,0,'Female',0.5,'Available',false,false,true,'https://images.unsplash.com/photo-1543549790-8b5e3f7f5d51?w=600','Nocturnal','CITES-11111','Captive Bred'],
+            ['Sandy','Camel','Dromedary',6,0,'Female',500,'Quarantine',true,false,true,'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=600','Gentle','CITES-77777','Captive Bred']
+        ];
 
-            await db.applications.bulkAdd([
-                { adopterName: 'Priya Rao', animalId: 1, date: '2026-10-22', status: 'Visit Scheduled', eligibilityScore: 86 },
-                { adopterName: 'Arjun Mehra', animalId: 2, date: '2026-10-24', status: 'Under Review', eligibilityScore: 65 },
-                { adopterName: 'Kavya Iyer', animalId: 3, date: '2026-10-25', status: 'Awaiting Decision', eligibilityScore: 92 }
-            ]);
+        const applicationData = [
+            ['Priya Rao','+91-98765-11111','priya.rao@fictitious.example',1,'Pending',85,null],
+            ['Arjun Mehra','+91-98765-22222','arjun.mehra@fictitious.example',2,'Pending',72,null],
+            ['Kavya Iyer','+91-98765-33333','kavya.iyer@fictitious.example',3,'Pending',90,null],
+            ['Rahul Verma','+91-98765-44444','rahul.verma@fictitious.example',4,'Pending',68,null],
+            ['Sana Khan','+91-98765-55555','sana.khan@fictitious.example',5,'Pending',78,null],
+            ['Amit Singh','+91-98765-66666','amit.singh@fictitious.example',6,'Under Review',82,null],
+            ['Neha Gupta','+91-98765-77777','neha.gupta@fictitious.example',7,'Under Review',88,null],
+            ['Rohan Das','+91-98765-88888','rohan.das@fictitious.example',8,'Under Review',75,null],
+            ['Isha Sharma','+91-98765-99999','isha.sharma@fictitious.example',9,'Under Review',80,null],
+            ['Vikram Sethi','+91-98765-10101','vikram.sethi@fictitious.example',10,'Under Review',70,null],
+            ['Anjali Nair','+91-98765-10202','anjali.nair@fictitious.example',11,'Visit Scheduled',92,null],
+            ['Karan Johar','+91-98765-10303','karan.johar@fictitious.example',12,'Visit Scheduled',85,null],
+            ['Simran Kaur','+91-98765-10404','simran.kaur@fictitious.example',13,'Visit Scheduled',78,null],
+            ['Meera Reddy','+91-98765-10505','meera.reddy@fictitious.example',14,'Approved',95,cm[0]],
+            ['Ravi Shankar','+91-98765-10606','ravi.shankar@fictitious.example',15,'Approved',88,cm[1]],
+            ['Divya Menon','+91-98765-10707','divya.menon@fictitious.example',16,'Approved',92,cm[2]],
+            ['Rohit Kumar','+91-98765-10808','rohit.kumar@fictitious.example',17,'Approved',85,cm[3]],
+            ['Anita Sharma','+91-98765-10909','anita.sharma@fictitious.example',18,'Approved',90,cm[4]],
+            ['Sanjay Gupta','+91-98765-11010','sanjay.gupta@fictitious.example',19,'Approved',87,cm[5]],
+            ['Priya Nair','+91-98765-11111b','priya.nair@fictitious.example',20,'Approved',93,cm[6]],
+            ['Rejected A','+91-98765-11212','rejected.a@fictitious.example',21,'Rejected',45,null],
+            ['Rejected B','+91-98765-11313','rejected.b@fictitious.example',22,'Rejected',50,null]
+        ];
 
-            await db.visits.bulkAdd([
-                { applicationId: 1, animalId: 1, date: '2026-11-07', time: '11:00', type: 'At the shelter', status: 'Scheduled' }
-            ]);
-
-            // Seed Medical Records
-            await db.medicalRecords.bulkAdd([
-                { animalId: 1, date: '12 Oct 2026', type: 'Vet Check', title: 'Routine exam - fit for adoption', description: 'Weight 28 kg. Mild hip dysplasia, joint supplement continued. Dr. A. Mehta' },
-                { animalId: 1, date: '20 Sep 2026', type: 'Behaviour', title: 'Temperament assessment - passed', description: 'Good with children 6+, needs slow dog intros, not cat-safe.' },
-                { animalId: 1, date: '28 Aug 2026', type: 'Surgery', title: 'Neutering', description: 'Uncomplicated recovery; sutures removed 7 Sep.' },
-                { animalId: 2, date: '10 Oct 2026', type: 'Vaccine', title: 'Rabies Booster', description: 'Administered by Dr. S. Sharma. Next due Oct 2027.' }
-            ]);
+        // ============ PER-TABLE SEEDING ============
+        async function seedAnimals() {
+            for (const a of animalData) {
+                const id = await db.animals.add({ name: a[0], species: a[1], breed: a[2], ageYears: a[3], ageMonths: a[4], gender: a[5], weight: a[6], status: a[7], isVaccinated: a[8], isSterilized: a[9], isMicrochipped: a[10], image: a[11], tags: a[12] ? a[12].split(',') : [], permitId: a[13], legalSource: a[14], intakeDate: '2026-09-01' });
+                await db.medicalRecords.add({ animalId: id, date: '2026-10-01', type: 'Intake', title: 'Initial Health Check', description: 'Fit for adoption.' });
+                await db.medicalRecords.add({ animalId: id, date: '2026-10-15', type: 'Vaccine', title: 'Core Vaccines', description: 'All core vaccines administered.' });
+            }
+            console.log('✅ Seeded 40 animals');
         }
 
-        // --- 2. CHART.JS SETUP ---
-        let statusChartInstance = null;
-        let trendChartInstance = null;
-
-        async function renderCharts() {
-            const animals = await db.animals.toArray();
-            const available = animals.filter(a => a.status === 'Available').length;
-            const review = animals.filter(a => a.status === 'Under Review').length;
-            const adopted = animals.filter(a => a.status === 'Adopted').length;
-
-            const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            if(statusChartInstance) statusChartInstance.destroy();
-            statusChartInstance = new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Available', 'Under Review', 'Adopted'],
-                    datasets: [{ data: [available, review, adopted], backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'], borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
-            });
-
-            const ctxTrend = document.getElementById('trendChart').getContext('2d');
-            if(trendChartInstance) trendChartInstance.destroy();
-            trendChartInstance = new Chart(ctxTrend, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{ label: 'Adoptions', data: [5, 8, 12, 10, 15, 18], backgroundColor: '#0a5c4a', borderRadius: 6, barThickness: 30 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] } }, x: { grid: { display: false } } } }
-            });
+        async function seedApplications() {
+            for (const [name, phone, email, animalId, status, score, adoptionDate] of applicationData) {
+                await db.applications.add({ adopterName: name, phone, email, animalId, status, eligibilityScore: score, adoptionDate: adoptionDate || null, date: new Date().toISOString() });
+            }
+            console.log('✅ Seeded 22 applications');
         }
 
-        // --- 3. APP LOGIC ---
-        document.addEventListener("DOMContentLoaded", async () => {
-            await seedDatabase();
-            setupNavigation();
-            setupForms();
-            navigateTo('dashboard'); 
-        });
-
-        window.navigateTo = navigateTo;
-        window.filterAnimals = filterAnimals;
-        window.approveApplication = approveApplication;
-        window.showAnimalDetail = showAnimalDetail;
-
-        function setupNavigation() {
-            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault(); 
-                    navigateTo(e.currentTarget.getAttribute('data-page'));
-                });
-            });
+        async function seedVisits() {
+            const ws = new Date(now); ws.setDate(now.getDate() - now.getDay());
+            for (let i = 0; i < 4; i++) {
+                const d = new Date(ws); d.setDate(ws.getDate() + i);
+                await db.visits.add({ applicationId: i+1, animalId: i+1, date: d.toISOString().split('T')[0], time: '11:00', type: 'Meet & Greet', status: 'Scheduled' });
+            }
+            console.log('✅ Seeded 4 visits');
         }
 
-        function navigateTo(page) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('d-none'));
-            document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+        async function seedExports() {
+            for (const [animalName, country, date, receiver] of [['Bruno','UK','2026-06-15','John Smith'],['Mishti','USA','2026-07-20','Mary Johnson'],['Spirit','Germany','2026-08-10','Hans Müller'],['Apollo','UAE','2026-09-05','Ahmed Al-Rashid'],['Coco','Australia','2026-10-01','Emma Wilson']]) {
+                const animal = await db.animals.where('name').equals(animalName).first();
+                if (animal) await db.exports.add({ animalId: animal.id, destinationCountry: country, receiverName: receiver, receiverContact: '+1-555-0100', transportMode: 'Air (Cargo)', plannedDate: date, status: 'Delivered', documents: [{ name: 'Health Certificate', expiry: '2027-01-15', fileData: 'data:text/plain;base64,SGVhbHRo' }] });
+            }
+            console.log('✅ Seeded 5 exports');
+        }
 
-            // Handle Detail view separately (it doesn't have a nav link)
-            if(page === 'animal-detail') {
-                document.getElementById('animal-detail-section').classList.remove('d-none');
-                document.querySelector('.nav-link[data-page="animals"]').classList.add('active');
-                document.getElementById('page-title').innerText = "Animal Profile";
-                return;
+        async function seedAdopters() {
+            await db.adopters.bulkAdd([
+                { name: 'Priya Rao', cat: 'Approved/Adopted', status: 'Active', email: 'priya.rao@fictitious.example', phone: '+91-98765-11111', city: 'Bengaluru', address: '42 Palm Grove, Indiranagar', occupation: 'Engineer', household: 'Spouse + 1 child', housing: 'Own apartment', yard: 'Balcony', petExp: '10 years', otherPets: 'None', idType: 'Aadhaar', idNumber: 'XXXX-XXXX-4471', journey: 'App 2026-09-15 → Review 2026-09-20 → Home check 2026-09-28 → Decision 2026-10-02 → Adopted 2026-10-05', appsCount: 2 },
+                { name: 'Arjun Mehra', cat: 'Under Review', status: 'Active', email: 'arjun.mehra@fictitious.example', phone: '+91-98765-22222', city: 'Mumbai', address: '301 Sea Breeze, Bandra', occupation: 'Analyst', household: 'Single', housing: 'Rent', yard: 'None', petExp: '5 years', otherPets: 'One cat', idType: 'PAN', idNumber: 'XXXXX-8823', journey: 'App 2026-10-20 → Under review', appsCount: 1 },
+                { name: 'Kavya Iyer', cat: 'Pending', status: 'Active', email: 'kavya.iyer@fictitious.example', phone: '+91-98765-33333', city: 'Chennai', address: '15 Anna Nagar', occupation: 'Teacher', household: 'Parents + 2 siblings', housing: 'Own house', yard: 'Yes', petExp: 'First-time', otherPets: 'None', idType: 'Driving License', idNumber: 'XXXX-2233', journey: 'App 2026-10-22 → Pending', appsCount: 1 },
+                { name: 'Rahul Verma', cat: 'Visit Scheduled', status: 'Active', email: 'rahul.verma@fictitious.example', phone: '+91-98765-44444', city: 'Delhi', address: '88 Lajpat Nagar', occupation: 'Business', household: 'Spouse + 1 child', housing: 'Own house', yard: 'Yes', petExp: 'Two Goldens', otherPets: 'None', idType: 'Aadhaar', idNumber: 'XXXX-XXXX-9921', journey: 'App 2026-10-15 → Review → Visit scheduled', appsCount: 2 },
+                { name: 'Sana Khan', cat: 'Approved/Adopted', status: 'Active', email: 'sana.khan@fictitious.example', phone: '+91-98765-55555', city: 'Hyderabad', address: '204 Jubilee Hills', occupation: 'Doctor', household: 'Spouse + 2 children', housing: 'Own villa', yard: 'Yes', petExp: '15 years', otherPets: 'One Labrador', idType: 'Passport', idNumber: 'XXXXX-3344', journey: 'App 2026-09-10 → Adopted 2026-10-01', appsCount: 3 }
+            ]);
+            console.log('✅ Seeded 5 adopters');
+        }
+
+        async function seedFosters() {
+            await db.fosters.bulkAdd([
+                { name: 'Ritu Sharma', cat: 'Ongoing', status: 'Ongoing', email: 'ritu.sharma@fictitious.example', phone: '+91-98200-11111', address: '22 Willow Lane, Whitefield', capacity: '3 pets', animalFostered: 'Rocky (Beagle)', startDate: '2026-09-12', checkins: '2026-09-15, 2026-09-28', suppliesProvided: 'Food, crate, leash', vetVisits: '1 (routine)', expenses: '₹2,400', outcome: 'Ongoing' },
+                { name: 'Anil Patel', cat: 'Ongoing', status: 'Ongoing', email: 'anil.patel@fictitious.example', phone: '+91-98200-22222', address: '5 Maple Street, Koramangala', capacity: '2 pets', animalFostered: 'Oreo (Domestic Shorthair)', startDate: '2026-09-20', checkins: '2026-09-23, 2026-10-05', suppliesProvided: 'Food, litter box', vetVisits: 'None', expenses: '₹1,200', outcome: 'Ongoing' },
+                { name: 'Meena Krishnan', cat: 'Ongoing', status: 'Ongoing', email: 'meena.krishnan@fictitious.example', phone: '+91-98200-33333', address: '11 Oak Drive, HSR Layout', capacity: '4 pets', animalFostered: 'Polly (Parakeet)', startDate: '2026-10-02', checkins: '2026-10-06', suppliesProvided: 'Cage, seed mix', vetVisits: 'None', expenses: '₹800', outcome: 'Ongoing' },
+                { name: 'Sunita Reddy', cat: 'Completed', status: 'Completed', email: 'sunita.reddy@fictitious.example', phone: '+91-98200-44444', address: '8 Elm Court, Jayanagar', capacity: '2 pets', animalFostered: 'Coco (Dutch Rabbit)', startDate: '2026-07-01', endDate: '2026-09-15', checkins: '2026-07-05, 2026-08-01, 2026-09-10', suppliesProvided: 'Hutch, hay', vetVisits: '1 (teeth check)', expenses: '₹3,500', outcome: 'Adopted by foster' },
+                { name: 'Vikram Joshi', cat: 'Completed', status: 'Completed', email: 'vikram.joshi@fictitious.example', phone: '+91-98200-55555', address: '30 Cedar Lane, BTM', capacity: '3 pets', animalFostered: 'Bugs (Mini Lop)', startDate: '2026-06-10', endDate: '2026-08-22', checkins: '2026-06-15, 2026-07-20, 2026-08-15', suppliesProvided: 'Cage, hay', vetVisits: 'None', expenses: '₹2,000', outcome: 'Adopted by other family' }
+            ]);
+            console.log('✅ Seeded 5 fosters');
+        }
+
+        async function seedIntake() {
+            await db.intake.bulkAdd([
+                { name: 'Bruno (Dog)', cat: 'Completed', status: 'Completed', source: 'Owner surrender', condition: 'Healthy', vitals: 'Temp 38.4°C, HR 90, Wt 28kg', tests: 'Rabies-, Parvo-', isolationLocation: 'Ward A', observations: 'Settled day 1-7', treatments: 'Deworming', releaseDate: '2026-09-22', clearedBy: 'Dr. Mehta', notes: 'Owner relocated' },
+                { name: 'Mishti (Cat)', cat: 'Ongoing', status: 'Ongoing', source: 'Street rescue', condition: 'Malnourished', vitals: 'Temp 38.9°C, HR 110, Wt 3.2kg', tests: 'FIV pending', isolationLocation: 'Ward B, Cage 4', observations: 'Day 1 refused food, day 3 eating', treatments: 'IV fluids', daysLeft: 5, notes: 'Monitor weight' },
+                { name: 'Sheru (Dog)', cat: 'Completed', status: 'Completed', source: 'Rescue org', condition: 'Injured paw', vitals: 'Temp 38.6°C, HR 95, Wt 18kg', tests: 'All clear', isolationLocation: 'Ward A', observations: 'Paw healed day 10', treatments: 'Antibiotics 5d', releaseDate: '2026-09-30', clearedBy: 'Dr. Sharma', notes: 'Friendly' },
+                { name: 'Chirpy (Cockatiel)', cat: 'Ongoing', status: 'Ongoing', source: 'Stray', condition: 'Stressed', vitals: 'Wt 92g', tests: 'Psittacosis pending', isolationLocation: 'Avian Ward, Cage 2', observations: 'Vocalizing more', treatments: 'Vitamin supplement', daysLeft: 8, notes: 'Monitor respiratory' },
+                { name: 'Sandy (Camel)', cat: 'Ongoing', status: 'Ongoing', source: 'Exotic surrender', condition: 'Underweight', vitals: 'Wt 480kg, HR 40', tests: 'TB pending', isolationLocation: 'Exotic pen', observations: 'Gaining slowly', treatments: 'Nutritional supplement', daysLeft: 12, notes: 'Regulated species' }
+            ]);
+            console.log('✅ Seeded 5 intake');
+        }
+
+        async function seedReminders() {
+            await db.reminders.bulkAdd([
+                { name: 'Rabies Booster — Bruno', cat: 'Vaccination', status: 'Overdue', animalName: 'Bruno', dueDate: yesterday, priority: 'High', assignedTo: 'Dr. Mehta', history: 'Created 2026-09-01' },
+                { name: 'FVRCP Booster — Mishti', cat: 'Vaccination', status: 'Due Today', animalName: 'Mishti', dueDate: today, priority: 'High', assignedTo: 'Dr. Sharma', history: 'Created 2026-09-15' },
+                { name: 'Annual Checkup — Rocky', cat: 'Check-up', status: 'Upcoming', animalName: 'Rocky', dueDate: in5, priority: 'Medium', assignedTo: 'Dr. Mehta', history: 'Created 2026-10-01' },
+                { name: 'Dental — Luna', cat: 'Check-up', status: 'Upcoming', animalName: 'Luna', dueDate: in10, priority: 'Medium', assignedTo: 'Dr. Sharma', history: 'Created 2026-10-05' },
+                { name: 'Deworming — Sheru', cat: 'Medication', status: 'Upcoming', animalName: 'Sheru', dueDate: in20, priority: 'Low', assignedTo: 'Dr. Mehta', history: 'Created 2026-10-10' }
+            ]);
+            console.log('✅ Seeded 5 reminders');
+        }
+
+        async function seedFollowups() {
+            await db.followups.bulkAdd([
+                { name: 'Priya Rao — 7-Day', cat: '7-Day Check', status: 'Done', adopter: 'Priya Rao', animal: 'Bruno', dueDate: '2026-10-10', outcome: 'Excellent', wellbeing: 'Happy, eating normally', photoUpdate: 'Yes', commLog: 'Call 2026-10-10', nextAction: '30-day check' },
+                { name: 'Arjun Mehra — 30-Day', cat: '30-Day Check', status: 'Due', adopter: 'Arjun Mehra', animal: 'Mishti', dueDate: today, outcome: 'Pending', wellbeing: 'TBD', photoUpdate: 'Awaiting', commLog: 'Email sent', nextAction: 'Follow up' },
+                { name: 'Kavya Iyer — 90-Day', cat: '90-Day Check', status: 'Upcoming', adopter: 'Kavya Iyer', animal: 'Sheru', dueDate: in20, outcome: 'TBD', wellbeing: 'TBD', photoUpdate: 'TBD', commLog: 'Scheduled', nextAction: 'Prepare questionnaire' },
+                { name: 'Sana Khan — 7-Day', cat: '7-Day Check', status: 'Done', adopter: 'Sana Khan', animal: 'Coco', dueDate: '2026-10-08', outcome: 'Good', wellbeing: 'Eating well', photoUpdate: 'Yes', commLog: 'Call 2026-10-08', nextAction: '30-day check' },
+                { name: 'Rahul Verma — 30-Day', cat: '30-Day Check', status: 'Due', adopter: 'Rahul Verma', animal: 'Luna', dueDate: today, outcome: 'Pending', wellbeing: 'TBD', photoUpdate: 'Awaiting', commLog: 'WhatsApp sent', nextAction: 'Call today' }
+            ]);
+            console.log('✅ Seeded 5 follow-ups');
+        }
+
+        async function seedInventory() {
+            await db.inventory.bulkAdd([
+                { name: 'Dog Food (Adult)', cat: 'Food', status: 'Low Stock', quantity: 5, threshold: 20, supplier: 'PetNutrition Pvt Ltd', contact: '1800-111-222', batch: 'DF-2026-001', expiry: '2027-03-15', unitCost: 450, location: 'Aisle A3', linkedSpecies: 'Dog', lastRestocked: '2026-09-15', stockHistory: 'IN 50 (2026-09-15), OUT 45', usageLog: 'Daily feeding 40 dogs' },
+                { name: 'Cat Litter', cat: 'Supplies', status: 'In Stock', quantity: 45, threshold: 20, supplier: 'CleanCat', contact: '1800-333-444', batch: 'CL-2026-042', expiry: '2028-01-10', unitCost: 220, location: 'Aisle B1', linkedSpecies: 'Cat', lastRestocked: '2026-10-01', stockHistory: 'IN 60, OUT 15', usageLog: 'Weekly litter change' },
+                { name: 'Rabies Vaccine', cat: 'Medicine', status: 'In Stock', quantity: 30, threshold: 10, supplier: 'VetCare', contact: '1800-555-666', batch: 'RV-2026-088', expiry: '2027-06-30', unitCost: 150, location: 'Fridge 1', linkedSpecies: 'All', lastRestocked: '2026-10-10', stockHistory: 'IN 40, OUT 10', usageLog: 'Used for new intakes' },
+                { name: 'Surgical Gloves', cat: 'Supplies', status: 'Low Stock', quantity: 8, threshold: 15, supplier: 'MedSupp', contact: '1800-777-888', batch: 'SG-2026-100', expiry: '2028-12-31', unitCost: 50, location: 'Cabinet C2', linkedSpecies: 'All', lastRestocked: '2026-08-20', stockHistory: 'IN 100, OUT 92', usageLog: 'Vet procedures' },
+                { name: 'Flea Treatment', cat: 'Medicine', status: 'In Stock', quantity: 25, threshold: 10, supplier: 'PetMed', contact: '1800-999-000', batch: 'FT-2026-055', expiry: '2027-09-15', unitCost: 350, location: 'Fridge 2', linkedSpecies: 'Dog,Cat', lastRestocked: '2026-09-20', stockHistory: 'IN 30, OUT 5', usageLog: 'Monthly treatment' },
+                { name: 'Puppy Food', cat: 'Food', status: 'In Stock', quantity: 40, threshold: 15, supplier: 'PetNutrition', contact: '1800-111-222', batch: 'PF-2026-010', expiry: '2027-01-20', unitCost: 380, location: 'Aisle A1', linkedSpecies: 'Dog', lastRestocked: '2026-10-05', stockHistory: 'IN 50, OUT 10', usageLog: 'Puppy feeding' },
+                { name: 'Kitten Food', cat: 'Food', status: 'In Stock', quantity: 35, threshold: 15, supplier: 'PetNutrition', contact: '1800-111-222', batch: 'KF-2026-015', expiry: '2027-02-25', unitCost: 320, location: 'Aisle A2', linkedSpecies: 'Cat', lastRestocked: '2026-10-08', stockHistory: 'IN 40, OUT 5', usageLog: 'Kitten feeding' },
+                { name: 'Deworming Pills', cat: 'Medicine', status: 'In Stock', quantity: 50, threshold: 20, supplier: 'VetCare', contact: '1800-555-666', batch: 'DW-2026-030', expiry: '2027-05-10', unitCost: 80, location: 'Cabinet C1', linkedSpecies: 'All', lastRestocked: '2026-09-28', stockHistory: 'IN 60, OUT 10', usageLog: 'Routine deworming' },
+                { name: 'Leashes', cat: 'Supplies', status: 'In Stock', quantity: 30, threshold: 10, supplier: 'PetAccess', contact: '1800-111-333', batch: 'LS-2026-020', expiry: '', unitCost: 200, location: 'Aisle D1', linkedSpecies: 'Dog', lastRestocked: '2026-09-01', stockHistory: 'IN 40, OUT 10', usageLog: 'Dog walking' },
+                { name: 'Pet Shampoo', cat: 'Supplies', status: 'In Stock', quantity: 20, threshold: 5, supplier: 'CleanPet', contact: '1800-444-555', batch: 'SH-2026-040', expiry: '2027-12-15', unitCost: 180, location: 'Aisle D2', linkedSpecies: 'All', lastRestocked: '2026-09-10', stockHistory: 'IN 25, OUT 5', usageLog: 'Bathing' },
+                { name: 'Antibiotics', cat: 'Medicine', status: 'Low Stock', quantity: 3, threshold: 8, supplier: 'PharmaPet', contact: '1800-666-777', batch: 'AB-2026-050', expiry: '2026-12-31', unitCost: 400, location: 'Fridge 1', linkedSpecies: 'All', lastRestocked: '2026-07-15', stockHistory: 'IN 20, OUT 17', usageLog: 'Medical treatments' },
+                { name: 'Bandages', cat: 'Supplies', status: 'In Stock', quantity: 60, threshold: 20, supplier: 'MedSupp', contact: '1800-777-888', batch: 'BN-2026-070', expiry: '2029-01-01', unitCost: 30, location: 'Cabinet C2', linkedSpecies: 'All', lastRestocked: '2026-10-01', stockHistory: 'IN 80, OUT 20', usageLog: 'Wound care' }
+            ]);
+            console.log('✅ Seeded 12 inventory');
+        }
+
+        async function seedDonations() {
+            await db.donations.bulkAdd([
+                { name: 'Ramesh Kumar', amount: 5000, date: '2026-10-01', type: 'One-time', channel: 'UPI', upiId: 'ra•••••••@oksbi', purpose: 'General', receiptNumber: 'RCP-2026-1001', status: 'Completed', thankyouSent: 'Yes', notes: '' },
+                { name: 'Anita Sharma', amount: 1000, date: '2026-10-03', type: 'Monthly', channel: 'Card', cardNumber: '•••• •••• •••• 4242', purpose: 'General', receiptNumber: 'RCP-2026-1002', status: 'Completed', thankyouSent: 'Yes', notes: 'Recurring' },
+                { name: 'Vikram Patel', amount: 2500, date: '2026-10-05', type: 'Sponsor-an-Animal', channel: 'Bank Transfer', bankAccount: '•••• •••• 1234', purpose: 'Bruno (Dog)', receiptNumber: 'RCP-2026-1003', status: 'Completed', thankyouSent: 'Yes', notes: 'Sponsors Bruno' },
+                { name: 'Meera Reddy', amount: 500, date: '2026-10-08', type: 'Website', channel: 'Card', cardNumber: '•••• •••• •••• 1234', purpose: 'General', receiptNumber: 'RCP-2026-1004', status: 'Completed', thankyouSent: 'Yes', notes: '' },
+                { name: 'Sanjay Gupta', amount: 10000, date: '2026-10-10', type: 'Food Drive', channel: 'Bank Transfer', bankAccount: '•••• •••• 5678', purpose: 'General', receiptNumber: 'RCP-2026-1005', status: 'Completed', thankyouSent: 'Yes', notes: 'Food drive' },
+                { name: 'Priya Nair', amount: 2000, date: '2026-10-12', type: 'Monthly', channel: 'Website', cardNumber: '•••• •••• •••• 1111', purpose: 'General', receiptNumber: 'RCP-2026-1006', status: 'Completed', thankyouSent: 'Yes', notes: '' },
+                { name: 'Arun Joshi', amount: 5000, date: '2026-10-15', type: 'Sponsor-an-Animal', channel: 'UPI', upiId: 'ar•••••••@okicici', purpose: 'Mishti (Cat)', receiptNumber: 'RCP-2026-1007', status: 'Completed', thankyouSent: 'Yes', notes: 'Sponsors Mishti' },
+                { name: 'Divya Menon', amount: 1500, date: '2026-10-18', type: 'Website', channel: 'Card', cardNumber: '•••• •••• •••• 5555', purpose: 'General', receiptNumber: 'RCP-2026-1008', status: 'Completed', thankyouSent: 'Yes', notes: '' },
+                { name: 'Rohit Verma', amount: 3000, date: '2026-10-20', type: 'Monthly', channel: 'Card', cardNumber: '•••• •••• •••• 9999', purpose: 'General', receiptNumber: 'RCP-2026-1009', status: 'Completed', thankyouSent: 'Yes', notes: '' },
+                { name: 'Neha Agarwal', amount: 8000, date: '2026-10-22', type: 'Sponsor-an-Animal', channel: 'Bank Transfer', bankAccount: '•••• •••• 4321', purpose: 'Rocky (Beagle)', receiptNumber: 'RCP-2026-1010', status: 'Completed', thankyouSent: 'Yes', notes: 'Sponsors Rocky' }
+            ]);
+            console.log('✅ Seeded 10 donations');
+        }
+
+        async function seedLostFound() {
+            await db.lostfound.bulkAdd([
+                { name: 'Missing Beagle — Buddy', type: 'Lost', species: 'Dog', breed: 'Beagle', status: 'Searching', location: 'MG Road', landmark: 'Metro Station', date: '2026-10-15', time: '14:30', reporter: 'Ravi Kumar', contact: '+91-98765-10101', description: 'Brown & white', microchip: 'XXXX-3456', matchSuggestions: 'None yet' },
+                { name: 'Found Tabby', type: 'Found', species: 'Cat', breed: 'Tabby', status: 'In Shelter', location: 'Indiranagar', landmark: '100ft Road', date: '2026-10-18', time: '09:00', reporter: 'Shelter Staff', contact: '+91-98765-10102', description: 'Orange tabby', microchip: '', matchSuggestions: '' },
+                { name: 'Missing Parrot — Mithu', type: 'Lost', species: 'Parrot/Bird', breed: 'Parakeet', status: 'Reunited', location: 'Jayanagar', landmark: '4th Block', date: '2026-10-10', time: '16:00', reporter: 'Sneha Rao', contact: '+91-98765-10103', description: 'Green parakeet', microchip: '', matchSuggestions: 'Matched report #7' },
+                { name: 'Found Lab mix Puppy', type: 'Found', species: 'Dog', breed: 'Labrador mix', status: 'In Shelter', location: 'Whitefield', landmark: 'ITPL', date: '2026-10-20', time: '11:00', reporter: 'Good Samaritan', contact: '+91-98765-10104', description: 'Golden pup', microchip: '', matchSuggestions: '' },
+                { name: 'Missing Tortoise — Sheldon', type: 'Lost', species: 'Tortoise', breed: 'Sulcata', status: 'Searching', location: 'Koramangala', landmark: '5th Block Park', date: '2026-10-12', time: '10:00', reporter: 'Arjun Das', contact: '+91-98765-10105', description: 'Large sulcata', microchip: 'XXXX-6789', matchSuggestions: 'None yet' },
+                { name: 'Found Indie Dog', type: 'Found', species: 'Dog', breed: 'Indie', status: 'Matched', location: 'HSR Layout', landmark: 'Sector 2', date: '2026-10-16', time: '18:00', reporter: 'Priya Patel', contact: '+91-98765-10106', description: 'Brown indie', microchip: 'XXXX-1234', matchSuggestions: 'Matched lost #1' },
+                { name: 'Missing Cat — Whiskers', type: 'Lost', species: 'Cat', breed: 'Persian', status: 'Searching', location: 'BTM Layout', landmark: 'Water Tank', date: '2026-10-19', time: '20:00', reporter: 'Kumar Swamy', contact: '+91-98765-10107', description: 'White Persian', microchip: 'XXXX-4321', matchSuggestions: '' },
+                { name: 'Found Kitten', type: 'Found', species: 'Cat', breed: 'Domestic', status: 'In Shelter', location: 'Electronic City', landmark: 'Phase 1', date: '2026-10-21', time: '08:30', reporter: 'Ravi Shankar', contact: '+91-98765-10108', description: 'Black kitten', microchip: '', matchSuggestions: '' }
+            ]);
+            console.log('✅ Seeded 8 lost & found');
+        }
+
+        async function seedVolunteers() {
+            await db.volunteers.bulkAdd([
+                { name: 'Shital', cat: 'Owner & Adoption Officer', status: 'Active', role: 'Owner & Adoption Officer', contact: '+91-98765-00001', email: 'shital@pawmatch.example', joinedDate: '2024-01-15', shifts: 'Mon-Fri 9-6', hoursThisMonth: '168', assignedAnimals: 'All', skills: 'Shelter mgmt', certifications: 'Certified Animal Welfare Officer', attendanceLog: 'Full present', performanceNotes: 'Founding owner', emergencyContact: '+91-98765-00002' },
+                { name: 'Dr. Anil Mehta', cat: 'Veterinarian', status: 'Active', role: 'Veterinarian', contact: '+91-98765-00011', email: 'anil.mehta@fictitious.example', joinedDate: '2024-03-01', shifts: 'Mon/Wed/Fri 10-4', hoursThisMonth: '72', assignedAnimals: 'All medical', skills: 'Surgery', certifications: 'BVSc, MVSc', attendanceLog: '20 sessions', performanceNotes: 'Excellent', emergencyContact: '+91-98765-00012' },
+                { name: 'Ritu Sharma', cat: 'Caretaker', status: 'Active', role: 'Caretaker', contact: '+91-98765-00021', email: 'ritu.sharma@fictitious.example', joinedDate: '2024-06-10', shifts: 'Tue-Sat 7-3', hoursThisMonth: '160', assignedAnimals: 'Dogs (Ward A)', skills: 'Feeding, grooming', certifications: 'Animal Handling', attendanceLog: 'Full present', performanceNotes: 'Reliable', emergencyContact: '+91-98765-00022' },
+                { name: 'Vikram Joshi', cat: 'Volunteer', status: 'Active', role: 'Volunteer', contact: '+91-98765-00031', email: 'vikram.joshi@fictitious.example', joinedDate: '2025-02-20', shifts: 'Sun 9-1', hoursThisMonth: '16', assignedAnimals: 'Cats', skills: 'Cat socialization', certifications: 'None', attendanceLog: '4 sessions', performanceNotes: 'Great with shy cats', emergencyContact: '+91-98765-00032' },
+                { name: 'Sneha Patel', cat: 'Admin', status: 'Active', role: 'Admin', contact: '+91-98765-00041', email: 'sneha.patel@fictitious.example', joinedDate: '2024-08-05', shifts: 'Mon-Fri 10-6', hoursThisMonth: '160', assignedAnimals: 'N/A', skills: 'Bookkeeping', certifications: 'Tally ERP', attendanceLog: 'Full', performanceNotes: 'Handles donations', emergencyContact: '+91-98765-00042' }
+            ]);
+            console.log('✅ Seeded 5 volunteers');
+        }
+
+        async function seedActivity() {
+            const actions = ['Added animal: Bruno','Approved application for Oreo','Scheduled visit for Mishti','Added medical record for Luna','New adopter: Priya Rao','Created export case UAE','Added inventory: Dog Food','Received donation ₹5000','Reported lost pet: Beagle','Completed follow-up','Vaccinated Sheru','Assigned foster to Coco','Added volunteer','Generated QR code','Updated shelter settings'];
+            for (let i = 0; i < actions.length; i++) await db.activity.add({ timestamp: new Date(Date.now() - i * 3600000).toISOString(), action: actions[i], type: 'info' });
+            console.log('✅ Seeded 15 activity logs');
+        }
+
+        async function seedSettings() {
+            await db.settings.bulkAdd([
+                { key: 'staffName', value: 'Shital' }, { key: 'staffRole', value: 'Owner & Adoption Officer' },
+                { key: 'theme', value: 'light' }, { key: 'owner', value: 'Shital' }, { key: 'sameAsOwner', value: true }, { key: 'officer', value: 'Shital' },
+                { key: 'phone', value: '+91 98XXX 00000' }, { key: 'email', value: 'adopt@pawmatch.in' }, { key: 'whatsapp', value: 'https://wa.me/919800000000' },
+                { key: 'address', value: 'PawMatch Animal Shelter, 12 Green Valley Road, Bengaluru 560001' }, { key: 'hours', value: '9 AM - 6 PM' }
+            ]);
+            console.log('✅ Seeded settings');
+        }
+
+        async function ensureSeed() {
+            const checks = [
+                ['animals', seedAnimals], ['applications', seedApplications], ['visits', seedVisits], ['exports', seedExports],
+                ['adopters', seedAdopters], ['fosters', seedFosters], ['intake', seedIntake], ['reminders', seedReminders],
+                ['followups', seedFollowups], ['inventory', seedInventory], ['donations', seedDonations], ['lostfound', seedLostFound],
+                ['volunteers', seedVolunteers], ['activity', seedActivity], ['settings', seedSettings]
+            ];
+            const results = [];
+            for (const [table, seedFn] of checks) {
+                try {
+                    const count = await db.table(table).count();
+                    if (count === 0) {
+                        await seedFn();
+                        results.push(`${table}: seeded`);
+                    } else {
+                        results.push(`${table}: ${count} exists`);
+                    }
+                } catch (e) {
+                    console.error(`❌ Failed to seed ${table}:`, e);
+                    results.push(`${table}: ERROR (${e.message})`);
+                }
+            }
+            console.log('📊 Seed results:', results);
+            return results;
+        }
+
+        // ============ HELPERS ============
+        function showToast(msg, type = 'success') {
+            const el = document.createElement('div');
+            el.className = 'custom-toast';
+            el.style.borderLeftColor = type === 'error' ? '#ef4444' : 'var(--primary)';
+            el.innerHTML = `<span class="fw-semibold">${msg}</span>`;
+            document.getElementById('toast-container').appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+        function getPlaceholder(s) { return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" style="background:%23e5e7eb"><text x="50%25" y="50%25" font-size="40" text-anchor="middle" dominant-baseline="central" fill="%236b7280" font-family="sans-serif">${s || 'Pet'}</text></svg>`; }
+        function maskPayment(d) {
+            if (d.upiId) return `<span class="payment-mask">${d.upiId}</span>`;
+            if (d.cardNumber) return `<span class="payment-mask">${d.cardNumber}</span>`;
+            if (d.bankAccount) return `<span class="payment-mask">${d.bankAccount}</span>`;
+            return '<span class="text-muted">Cash</span>';
+        }
+        function statusClass(s) {
+            const map = { 'Available':'Available','Under Review':'UnderReview','Adopted':'Adopted','Fostered':'Fostered','Quarantine':'Quarantine','Reserved':'Reserved','Adoption Pending':'AdoptionPending','Under Medical Treatment':'UnderMedicalTreatment','Approved':'Approved','Pending':'Pending','Visit Scheduled':'VisitScheduled','Rejected':'Rejected','Ongoing':'Ongoing','Completed':'Completed','Overdue':'Overdue','Due Today':'DueToday','Upcoming':'Upcoming','Due':'Due','Done':'Done','Searching':'Searching','In Shelter':'InShelter','Reunited':'Reunited','Matched':'Matched','Active':'Active','Inactive':'Inactive','Full':'Full','Low Stock':'LowStock','In Stock':'InStock','Blacklisted':'Blacklisted','On Leave':'OnLeave','Approved/Adopted':'Approved','Owner & Adoption Officer':'Active','Veterinarian':'Active','Caretaker':'Active','Volunteer':'Active','Admin':'Active' };
+            return map[s] || 'Active';
+        }
+        async function getSetting(key, fallback = '') { const rec = await db.settings.get(key); return rec ? rec.value : fallback; }
+
+        async function applySettingsLive() {
+            try {
+                const owner = await getSetting('owner', 'Shital');
+                const same = await getSetting('sameAsOwner', true);
+                const officer = same ? owner : await getSetting('officer', 'Shital');
+                const role = same ? 'Owner & Adoption Officer' : 'Adoption Officer';
+
+                const nameEl = document.getElementById('sidebar-staff-name');
+                const roleEl = document.getElementById('sidebar-staff-role');
+                if (nameEl) nameEl.innerText = officer;
+                if (roleEl) roleEl.innerText = role;
+
+                const dashTitle = document.getElementById('page-title');
+                if (dashTitle && dashTitle.innerText.toLowerCase().includes('dashboard')) {
+                    dashTitle.innerText = `Dashboard — Welcome, ${officer.split(' ')[0]}`;
+                }
+
+                await loadContactFooter();
+
+                const staffNameEl = document.getElementById('staff-name');
+                const staffRoleEl = document.getElementById('staff-role');
+                if (staffNameEl) staffNameEl.value = officer;
+                if (staffRoleEl) staffRoleEl.value = role;
+
+                const ownerEl = document.getElementById('set-owner');
+                const sameEl = document.getElementById('set-same-as-owner');
+                const officerNameEl = document.getElementById('set-officer-name');
+                if (ownerEl) ownerEl.value = owner;
+                if (sameEl) sameEl.checked = same;
+                if (officerNameEl) officerNameEl.value = same ? owner : officer;
+                toggleOfficerField();
+
+                const volOwner = await db.volunteers.where('cat').equals('Owner & Adoption Officer').first();
+                if (volOwner && volOwner.name !== officer) {
+                    await db.volunteers.update(volOwner.id, { name: officer });
+                }
+            } catch (e) {
+                console.warn("Could not fully apply settings (non-fatal):", e);
+            }
+        }
+
+        async function loadContactFooter() {
+            const phone = await getSetting('phone', '+91 98XXX 00000');
+            const email = await getSetting('email', 'adopt@pawmatch.in');
+            const whatsapp = await getSetting('whatsapp', 'https://wa.me/919800000000');
+            const address = await getSetting('address', 'PawMatch Animal Shelter');
+            const owner = await getSetting('owner', 'Shital');
+            const same = await getSetting('sameAsOwner', true);
+            const officer = same ? owner : await getSetting('officer', owner);
+            const hours = await getSetting('hours', '9 AM - 6 PM');
+            const role = same ? 'Owner & Adoption Officer' : 'Adoption Officer';
+            const phoneClean = phone.replace(/\s/g, '');
+
+            const footer = document.getElementById('contact-footer');
+            if (footer) footer.innerHTML = `
+                <h6 class="fw-bold mb-3"><i class="bi bi-life-preserver text-success"></i> Need help? Call <a href="tel:${phoneClean}" class="text-decoration-none">${phone}</a></h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><i class="bi bi-person-circle text-success me-1"></i> <strong>${role}:</strong> ${officer}<br><small class="text-muted">Available ${hours}</small></div>
+                    <div class="col-md-4"><i class="bi bi-geo-alt-fill text-danger me-1"></i> ${address}<br><a href="https://maps.google.com/?q=${encodeURIComponent(address)}" target="_blank" class="small text-decoration-none">Get Directions →</a></div>
+                    <div class="col-md-4"><i class="bi bi-envelope-fill text-primary me-1"></i> <a href="mailto:${email}" class="text-decoration-none">${email}</a><br><a href="${whatsapp}" target="_blank" class="small text-decoration-none"><i class="bi bi-whatsapp text-success me-1"></i>WhatsApp us</a></div>
+                </div>
+            `;
+            const topCall = document.getElementById('topbar-call-btn');
+            if (topCall) topCall.href = `tel:${phoneClean}`;
+            const floatingCall = document.getElementById('floating-call-btn');
+            if (floatingCall) floatingCall.onclick = () => window.location.href = `tel:${phoneClean}`;
+        }
+
+        function toggleOfficerField() {
+            const same = document.getElementById('set-same-as-owner').checked;
+            const wrap = document.getElementById('officer-field-wrap');
+            const officerEl = document.getElementById('set-officer-name');
+            if (same) {
+                if (wrap) wrap.style.display = 'none';
+                const ownerVal = document.getElementById('set-owner')?.value;
+                if (officerEl && ownerVal) officerEl.value = ownerVal;
+            } else {
+                if (wrap) wrap.style.display = 'block';
+            }
+        }
+
+        let scrollPositions = {};
+        let activePage = '';
+        function nav(page) {
+            activePage = page;
+            const current = document.querySelector('.page-section:not(.d-none)');
+            if (current) scrollPositions[current.id] = window.scrollY;
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('d-none'));
+            document.querySelectorAll('#sidebar .nav-link').forEach(n => n.classList.remove('active'));
+            const generic = ['adopters','fosters','intake','reminders','followups','inventory','donations','lostfound','volunteers'];
+            const sectionId = generic.includes(page) ? 'generic-section' : `${page}-section`;
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove('d-none');
+            const navLink = document.querySelector(`#sidebar .nav-link[data-page="${page}"]`);
+            if (navLink) navLink.classList.add('active');
+
+            document.getElementById('page-title').innerText = page.charAt(0).toUpperCase() + page.slice(1).replace('-', ' ');
+            if (page === 'dashboard') {
+                const nameEl = document.getElementById('sidebar-staff-name');
+                if (nameEl) document.getElementById('page-title').innerText = `Dashboard — Welcome, ${nameEl.innerText.split(' ')[0]}`;
             }
 
-            const target = document.getElementById(`${page}-section`);
-            if(target) target.classList.remove('d-none');
-            
-            const activeNav = document.querySelector(`.nav-link[data-page="${page}"]`);
-            if(activeNav) activeNav.classList.add('active');
+            window.location.hash = page;
+            window.scrollTo(0, scrollPositions[target?.id] || 0);
 
-            const titles = { 'dashboard': 'Good morning, Neha', 'animals': 'Animals & Medical', 'applications': 'Applications Overview', 'visits': 'Visit Calendar' };
-            document.getElementById('page-title').innerText = titles[page];
-
-            if (page === 'dashboard') { loadDashboardStats(); renderCharts(); }
-            if (page === 'animals') { loadAnimals(); }
-            if (page === 'applications') { loadApplications(); }
-            if (page === 'visits') { loadVisits(); }
+            if (generic.includes(page)) loadGenericModule(page);
+            else if (page === 'dashboard') loadDashboard();
+            else if (page === 'animals') loadAnimals();
+            else if (page === 'applications') loadApplications();
+            else if (page === 'visits') loadVisits();
+            else if (page === 'export') loadExports();
+            else if (page === 'settings') loadSettingsForm();
         }
+        window.addEventListener('hashchange', () => {
+            const page = window.location.hash.slice(1) || 'dashboard';
+            if (page !== activePage) nav(page);
+        });
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', (e) => { e.preventDefault(); nav(e.currentTarget.dataset.page); });
+        });
 
-        async function loadDashboardStats() {
+        // ============ DASHBOARD ============
+        async function loadDashboard() {
             const animals = await db.animals.toArray();
             const apps = await db.applications.toArray();
             const visits = await db.visits.toArray();
+            const nowD = new Date();
+            const ws = new Date(nowD); ws.setDate(nowD.getDate() - nowD.getDay()); ws.setHours(0,0,0,0);
+            const we = new Date(ws); we.setDate(ws.getDate() + 7);
+            const pending = apps.filter(a => a.status === 'Pending').length;
+            const visitsThisWeek = visits.filter(v => { const d = new Date(v.date); return d >= ws && d < we; }).length;
+            const adoptionsThisMonth = apps.filter(a => a.status === 'Approved' && a.adoptionDate && new Date(a.adoptionDate).getMonth() === nowD.getMonth() && new Date(a.adoptionDate).getFullYear() === nowD.getFullYear()).length;
 
             document.getElementById('stat-animals').innerText = animals.length;
             document.getElementById('stat-available').innerText = `${animals.filter(a => a.status === 'Available').length} available`;
-            document.getElementById('stat-apps').innerText = apps.filter(a => a.status !== 'Approved').length;
-            document.getElementById('stat-visits').innerText = visits.length;
+            document.getElementById('stat-apps').innerText = pending;
+            document.getElementById('stat-visits').innerText = visitsThisWeek;
+            document.getElementById('stat-adoptions').innerText = adoptionsThisMonth;
+
+            const missing = animals.filter(a => !a.image);
+            const container = document.getElementById('missing-photos-container');
+            if (missing.length > 0) {
+                container.innerHTML = `<div class="stat-card mb-4" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,.05)"><h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle text-warning"></i> ${missing.length} animals need photos</h6>${missing.map(a => `<div class="d-flex align-items-center gap-2 mb-2"><strong>${a.name}</strong> <span class="text-muted small">${a.species}</span><button class="btn btn-sm btn-outline-warning ms-auto" onclick="fixOnePhoto(${a.id})">Fix</button></div>`).join('')}</div>`;
+            } else container.innerHTML = '';
+
+            renderCharts(animals, apps);
+            loadActivityFeed();
         }
 
-        async function loadAnimals() {
-            const animals = await db.animals.toArray();
-            renderAnimalsGrid(animals);
-        }
-
-        function renderAnimalsGrid(animals) {
-            const grid = document.getElementById('animals-grid');
-            grid.innerHTML = '';
-            
-            animals.forEach(animal => {
-                const tagsHtml = (animal.tags || []).map(t => `<span class="tag-badge">${t}</span>`).join('');
-                const statusClass = animal.status ? animal.status.replace(' ', '') : 'Available';
-                // Make the card clickable using onclick="showAnimalDetail(id)"
-                grid.innerHTML += `
-                    <div class="col-md-6 col-xl-3">
-                        <div class="animal-card" onclick="showAnimalDetail(${animal.id})">
-                            <img src="${animal.image}" class="animal-img" alt="${animal.name}" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop'">
-                            <div class="animal-body">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 class="fw-bold mb-0">${animal.name}</h5>
-                                    <span class="status-badge status-${statusClass}">${animal.status}</span>
-                                </div>
-                                <div class="text-muted mb-3" style="font-size: 0.85rem;">${animal.species} · ${animal.breed} · ${animal.age}</div>
-                                <div class="d-flex flex-wrap gap-2">${tagsHtml}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        let statusChart, trendChart, intakeChart;
+        function renderCharts(animals, apps) {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const textColor = isDark ? '#f8fafc' : '#1a1a1a';
+            const statusCounts = {};
+            animals.forEach(a => { statusCounts[a.status] = (statusCounts[a.status] || 0) + 1; });
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#10b981','#6366f1','#ef4444','#f59e0b','#3b82f6','#ec4899','#14b8a6'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: textColor, boxWidth: 10 } } } }
+            });
+            const nowD = new Date();
+            const months = [], monthData = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(nowD.getFullYear(), nowD.getMonth() - i, 1);
+                months.push(d.toLocaleString('default', { month: 'short' }));
+                monthData.push(apps.filter(a => a.status === 'Approved' && a.adoptionDate && new Date(a.adoptionDate).getMonth() === d.getMonth() && new Date(a.adoptionDate).getFullYear() === d.getFullYear()).length);
+            }
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(document.getElementById('trendChart'), {
+                type: 'line', data: { labels: months, datasets: [{ label: 'Adoptions', data: monthData, borderColor: '#0a5c4a', backgroundColor: 'rgba(10,92,74,0.1)', tension: 0.4, fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: textColor } }, x: { ticks: { color: textColor } } } }
+            });
+            if (intakeChart) intakeChart.destroy();
+            intakeChart = new Chart(document.getElementById('intakeChart'), {
+                type: 'bar', data: { labels: ['Aug','Sep','Oct'], datasets: [{ label: 'Intake', data: [5, 8, animals.filter(a => new Date(a.intakeDate).getMonth() === nowD.getMonth()).length], backgroundColor: '#3b82f6', borderRadius: 6 }, { label: 'Adoptions', data: monthData.slice(-3), backgroundColor: '#10b981', borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: textColor } } }, scales: { y: { beginAtZero: true, ticks: { color: textColor } }, x: { ticks: { color: textColor } } } }
             });
         }
 
-        async function filterAnimals() {
-            const term = document.getElementById('search-animals').value.toLowerCase();
+        async function loadActivityFeed() {
+            const logs = await db.activity.reverse().limit(15).toArray();
+            document.getElementById('activity-feed').innerHTML = logs.length === 0 ? '<div class="text-muted text-center py-4">No activity yet</div>' : logs.map(l => `<div class="activity-item"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:36px;height:36px;flex-shrink:0;"><i class="bi bi-activity"></i></div><div class="flex-grow-1"><div class="fw-semibold">${l.action}</div><div class="text-muted small">${new Date(l.timestamp).toLocaleTimeString()}</div></div></div>`).join('');
+        }
+
+        // ============ ANIMALS ============
+        async function loadAnimals() {
             const animals = await db.animals.toArray();
-            renderAnimalsGrid(animals.filter(a => a.name.toLowerCase().includes(term) || a.breed.toLowerCase().includes(term)));
+            document.getElementById('animals-grid').innerHTML = animals.map(a => `<div class="col-md-6 col-xl-4"><div class="animal-card" onclick="showAnimalDetail(${a.id})"><img src="${a.image || getPlaceholder(a.species)}" class="animal-img" onerror="this.onerror=null;this.src='${getPlaceholder(a.species)}'"><div class="animal-body"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold mb-0">${a.name}</h5><span class="status-badge status-${statusClass(a.status)}">${a.status}</span></div><div class="text-muted mb-3 small">${a.species} · ${a.breed} · ${a.ageYears}y ${a.ageMonths}m</div><div class="d-flex flex-wrap gap-2">${(a.tags||[]).map(t=>`<span class="tag-badge">${t}</span>`).join('')}</div></div></div></div>`).join('');
         }
 
-        // --- DETAIL VIEW LOGIC ---
+        function applyAnimalFilters() {
+            const search = document.getElementById('search-animals').value.toLowerCase();
+            const sp = document.getElementById('filter-species').value;
+            const st = document.getElementById('filter-status').value;
+            db.animals.toArray().then(animals => {
+                let filtered = animals;
+                if (search) filtered = filtered.filter(a => a.name.toLowerCase().includes(search) || a.breed.toLowerCase().includes(search));
+                if (sp) filtered = filtered.filter(a => a.species === sp);
+                if (st) filtered = filtered.filter(a => a.status === st);
+                document.getElementById('animals-grid').innerHTML = filtered.map(a => `<div class="col-md-6 col-xl-4"><div class="animal-card" onclick="showAnimalDetail(${a.id})"><img src="${a.image || getPlaceholder(a.species)}" class="animal-img" onerror="this.onerror=null;this.src='${getPlaceholder(a.species)}'"><div class="animal-body"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold mb-0">${a.name}</h5><span class="status-badge status-${statusClass(a.status)}">${a.status}</span></div><div class="text-muted mb-3 small">${a.species} · ${a.breed}</div></div></div></div>`).join('');
+            });
+        }
+
         async function showAnimalDetail(id) {
-            const animal = await db.animals.get(id);
+            const a = await db.animals.get(id);
             const records = await db.medicalRecords.where('animalId').equals(id).toArray();
-            
-            if(!animal) return;
-
-            // Populate Header
-            document.getElementById('detail-img').src = animal.image;
-            document.getElementById('detail-name').innerText = animal.name;
-            document.getElementById('detail-meta').innerText = `${animal.species} · ${animal.breed} · ${animal.age}`;
-            
-            const statusEl = document.getElementById('detail-status');
-            statusEl.innerText = animal.status;
-            statusEl.className = `status-badge status-${animal.status.replace(' ', '')}`;
-
-            // Populate Tags
-            document.getElementById('detail-tags').innerHTML = (animal.tags || []).map(t => `<span class="tag-badge">${t}</span>`).join('');
-
-            // Populate Timeline
-            const timeline = document.getElementById('detail-timeline');
-            timeline.innerHTML = '';
-            
-            if(records.length === 0) {
-                timeline.innerHTML = '<p class="text-muted">No medical records found for this animal.</p>';
-            } else {
-                // Sort records by date descending (simple string sort for demo)
-                records.sort((a,b) => new Date(b.date) - new Date(a.date));
-                
-                records.forEach(rec => {
-                    timeline.innerHTML += `
-                        <div class="timeline-item">
-                            <div class="timeline-icon"></div>
-                            <div class="timeline-date">${rec.date}</div>
-                            <div class="timeline-title">${rec.title} <span class="badge bg-light text-dark ms-2" style="font-size:0.7rem;">${rec.type}</span></div>
-                            <div class="timeline-desc">${rec.description}</div>
-                        </div>
-                    `;
-                });
-            }
-
-            // Switch View
-            navigateTo('animal-detail');
+            document.getElementById('breadcrumb-name').innerText = a.name;
+            document.getElementById('detail-img').src = a.image || getPlaceholder(a.species);
+            document.getElementById('detail-name').innerText = a.name;
+            document.getElementById('detail-meta').innerText = `${a.species} · ${a.breed} · ${a.ageYears}y ${a.ageMonths}m · ${a.gender} · ${a.weight}kg`;
+            document.getElementById('detail-status').className = `status-badge status-${statusClass(a.status)}`;
+            document.getElementById('detail-status').innerText = a.status;
+            document.getElementById('detail-tags').innerHTML = (a.tags||[]).map(t=>`<span class="tag-badge">${t}</span>`).join('');
+            const reg = document.getElementById('detail-regulated');
+            if (SPECIES[a.species]?.regulated) {
+                reg.classList.remove('d-none');
+                document.getElementById('detail-regulated-info').innerHTML = `<strong>Regulated:</strong> Source: ${a.legalSource || 'N/A'} | Permit: ${a.permitId || 'N/A'}`;
+            } else reg.classList.add('d-none');
+            document.getElementById('detail-readiness').innerHTML = `<div><i class="bi bi-${a.isVaccinated?'check-circle-fill text-success':'x-circle-fill text-danger'}"></i> Vaccinated</div><div><i class="bi bi-${a.isSterilized?'check-circle-fill text-success':'x-circle-fill text-danger'}"></i> Sterilized</div><div><i class="bi bi-${a.isMicrochipped?'check-circle-fill text-success':'x-circle-fill text-danger'}"></i> Microchipped</div>`;
+            document.getElementById('detail-timeline').innerHTML = records.map(m => `<div class="timeline-item"><div class="timeline-icon"></div><div class="text-muted small fw-bold">${m.date}</div><div class="fw-bold">${m.title}</div><div class="text-muted small">${m.description}</div></div>`).join('');
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), { text: window.location.href + `?id=${a.id}`, width: 150, height: 150 });
+            nav('animal-detail');
         }
 
-        // --- REMAINING APP LOGIC (Applications & Visits) ---
+        async function fixOnePhoto(id) {
+            const a = await db.animals.get(id);
+            try {
+                const res = await fetch(`https://dog.ceo/api/breed/${(a.breed||'labrador').toLowerCase().replace(/\s+/g,'')}/images/random`);
+                const data = await res.json();
+                if (data.status === 'success') { await db.animals.update(id, { image: data.message }); showToast(`Photo fixed for ${a.name}`); loadDashboard(); }
+            } catch (e) { showToast("Could not fix photo", "error"); }
+        }
+        async function fixMissingPhotos() {
+            const animals = await db.animals.toArray();
+            const missing = animals.filter(a => !a.image);
+            for (const a of missing) await fixOnePhoto(a.id);
+            showToast(`Fixed ${missing.length} photos`);
+        }
+
+        // ============ APPLICATIONS ============
         async function loadApplications() {
             const apps = await db.applications.toArray();
             const animals = await db.animals.toArray();
-            const tbody = document.getElementById('applications-table-body');
-            tbody.innerHTML = '';
-
+            ['pending','review','visit','approved','rejected'].forEach(c => document.getElementById(`col-${c}`).innerHTML = '');
             apps.forEach(app => {
                 const animal = animals.find(a => a.id === app.animalId);
-                const animalName = animal ? animal.name : 'Unknown';
-                let actionBtn = app.status !== 'Approved' 
-                    ? `<button type="button" class="btn btn-sm btn-primary-green" onclick="approveApplication(${app.id}, ${app.animalId})">Approve</button>`
-                    : `<span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Adopted</span>`;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold">${app.adopterName}</td>
-                        <td>${animalName}</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress" style="width: 80px; height: 6px;">
-                                    <div class="progress-bar ${app.eligibilityScore > 75 ? 'bg-success' : 'bg-warning'}" style="width: ${app.eligibilityScore}%"></div>
-                                </div>
-                                <span class="small fw-bold">${app.eligibilityScore}/100</span>
-                            </div>
-                        </td>
-                        <td><span class="badge bg-light text-dark border">${app.status}</span></td>
-                        <td>${actionBtn}</td>
-                    </tr>
-                `;
+                const card = `<div class="kanban-card"><div class="d-flex justify-content-between mb-2"><strong>${app.adopterName}</strong><span class="badge bg-light text-dark">${app.eligibilityScore}%</span></div><div class="text-muted small mb-2"><i class="bi bi-paw"></i> ${animal?.name || 'Unknown'}</div><div class="d-flex flex-column gap-1">${app.status === 'Pending' ? `<button class="btn btn-sm btn-outline-info" onclick="updateAppStatus(${app.id}, 'Under Review')"><i class="bi bi-search"></i> Review</button>` : ''}${app.status === 'Under Review' ? `<button class="btn btn-sm btn-outline-primary" onclick="updateAppStatus(${app.id}, 'Visit Scheduled')"><i class="bi bi-calendar"></i> Schedule</button>` : ''}${app.status === 'Visit Scheduled' ? `<button class="btn btn-sm btn-success" onclick="approveApp(${app.id}, ${app.animalId})"><i class="bi bi-check-circle"></i> Approve</button>` : ''}${app.status !== 'Approved' && app.status !== 'Rejected' ? `<button class="btn btn-sm btn-outline-danger" onclick="rejectApp(${app.id})"><i class="bi bi-x-circle"></i> Reject</button>` : ''}<button class="btn btn-sm btn-outline-secondary" onclick="showAppDetail(${app.id})"><i class="bi bi-eye"></i> Details</button></div></div>`;
+                if (app.status === 'Pending') document.getElementById('col-pending').innerHTML += card;
+                if (app.status === 'Under Review') document.getElementById('col-review').innerHTML += card;
+                if (app.status === 'Visit Scheduled') document.getElementById('col-visit').innerHTML += card;
+                if (app.status === 'Approved') document.getElementById('col-approved').innerHTML += card;
+                if (app.status === 'Rejected') document.getElementById('col-rejected').innerHTML += card;
             });
         }
-
-        async function approveApplication(appId, animalId) {
-            if(confirm("Approve adoption? Animal will be marked Adopted.")) {
-                await db.applications.update(appId, { status: 'Approved' });
-                await db.animals.update(animalId, { status: 'Adopted' });
-                loadApplications(); 
-            }
+        async function updateAppStatus(id, status) {
+            if (!confirm(`Move to ${status}?`)) return;
+            await db.applications.update(id, { status });
+            await db.activity.add({ timestamp: new Date().toISOString(), action: `Application #${id} → ${status}`, type: 'info' });
+            showToast(`Moved to ${status}`);
+            loadApplications();
+        }
+        async function approveApp(appId, animalId) {
+            if (!confirm("Approve this adoption?")) return;
+            await db.applications.update(appId, { status: 'Approved', adoptionDate: new Date().toISOString() });
+            await db.animals.update(animalId, { status: 'Adopted' });
+            await db.activity.add({ timestamp: new Date().toISOString(), action: `Adoption approved #${appId}`, type: 'success' });
+            showToast("Adoption Approved! 🎉");
+            loadApplications();
+        }
+        async function rejectApp(appId) {
+            if (!confirm("Reject?")) return;
+            await db.applications.update(appId, { status: 'Rejected' });
+            await db.activity.add({ timestamp: new Date().toISOString(), action: `Application #${appId} rejected`, type: 'warning' });
+            showToast("Application rejected", "error");
+            loadApplications();
+        }
+        async function showAppDetail(id) {
+            const app = await db.applications.get(id);
+            const animal = await db.animals.get(app.animalId);
+            showDrawer(`Application #${id}`, `<div class="detail-row"><span class="detail-label">Applicant</span><span class="detail-value">${app.adopterName}</span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${app.phone}</span></div><div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${app.email}</span></div><div class="detail-row"><span class="detail-label">Animal</span><span class="detail-value">${animal?.name}</span></div><div class="detail-row"><span class="detail-label">Eligibility</span><span class="detail-value">${app.eligibilityScore}/100</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${app.status}</span></div>`);
         }
 
+        // ============ VISITS ============
         async function loadVisits() {
             const visits = await db.visits.toArray();
             const apps = await db.applications.toArray();
-            const list = document.getElementById('visits-list');
-            list.innerHTML = '';
-            
-            visits.forEach(v => {
+            const animals = await db.animals.toArray();
+            document.getElementById('visits-list').innerHTML = visits.map(v => {
                 const app = apps.find(a => a.id === v.applicationId);
-                list.innerHTML += `
-                    <div class="border rounded p-3 d-flex align-items-center gap-3 bg-white">
-                        <div class="bg-light p-3 rounded text-center" style="min-width: 90px;">
-                            <i class="bi bi-calendar-event fs-5 text-success"></i>
-                            <div class="small fw-bold mt-1 text-dark">${v.date}</div>
-                        </div>
-                        <div>
-                            <div class="fw-bold">${v.type} with ${app ? app.adopterName : 'Applicant'}</div>
-                            <div class="text-muted small"><i class="bi bi-clock"></i> ${v.time}</div>
-                        </div>
-                    </div>
-                `;
-            });
-
+                const animal = animals.find(a => a.id === v.animalId);
+                return `<div class="border rounded p-3 mb-2 d-flex align-items-center gap-3"><div class="bg-light p-3 rounded text-center"><i class="bi bi-calendar-event fs-4 text-success"></i><div class="small fw-bold">${v.date}</div></div><div><div class="fw-bold">${animal?.name || 'Unknown'} — ${app?.adopterName || 'Applicant'}</div><div class="text-muted small">${v.time} · ${v.type}</div></div></div>`;
+            }).join('');
             const select = document.getElementById('visit-app-id');
-            select.innerHTML = '<option value="">Select Application...</option>';
-            apps.forEach(a => select.innerHTML += `<option value="${a.id}">${a.adopterName} - App #${a.id}</option>`);
+            select.innerHTML = '<option value="">Select Application...</option>' + apps.map(a => `<option value="${a.id}">${a.adopterName}</option>`).join('');
         }
 
-        function setupForms() {
+        // ============ EXPORT ============
+        async function loadExports() {
+            const cases = await db.exports.toArray();
+            const animals = await db.animals.toArray();
+            document.getElementById('export-grid').innerHTML = cases.map(c => {
+                const a = animals.find(x => x.id === c.animalId);
+                return `<div class="col-md-6 col-lg-4"><div class="stat-card"><div class="d-flex justify-content-between mb-3"><span class="badge bg-${c.status==='Delivered'?'success':'primary'}">${c.status}</span><small class="text-muted">${new Date(c.plannedDate).toLocaleDateString()}</small></div><h5 class="fw-bold">${a?.name}</h5><p class="text-muted small"><i class="bi bi-geo-alt-fill text-danger"></i> ${c.destinationCountry}</p><button class="btn btn-outline-green w-100" onclick="showExportDetail(${c.id})">View Case</button></div></div>`;
+            }).join('');
+            document.getElementById('exp-animal').innerHTML = '<option value="">Select...</option>' + animals.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            document.getElementById('exp-country').innerHTML = Object.keys(COUNTRIES).map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        async function showExportDetail(id) {
+            const c = await db.exports.get(id);
+            const a = await db.animals.get(c.animalId);
+            const info = COUNTRIES[c.destinationCountry] || { reqs: [] };
+            document.getElementById('exp-title').innerText = `Export: ${a?.name}`;
+            document.getElementById('exp-animal').innerText = `${a?.name} (${a?.species})`;
+            document.getElementById('exp-receiver').innerText = c.receiverName;
+            document.getElementById('exp-dest').innerText = c.destinationCountry;
+            document.getElementById('exp-date').innerText = c.plannedDate;
+            document.getElementById('exp-doc-list').innerHTML = info.reqs.map(req => {
+                const up = (c.documents||[]).find(d => d.name.toLowerCase().includes(req.toLowerCase()));
+                return up ? `<div class="doc-item doc-valid"><strong>${up.name}</strong><i class="bi bi-check-circle-fill text-success"></i></div>` : `<div class="doc-item"><strong class="text-muted">${req}</strong><span class="badge bg-warning">Required</span></div>`;
+            }).join('');
+            nav('export-detail');
+        }
+
+        // ============ GENERIC MODULES ============
+        let currentGenericType = '';
+        async function loadGenericModule(type) {
+            currentGenericType = type;
+            document.getElementById('gen-title').innerText = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ');
+            const data = await db.table(type).toArray();
+
+            const heads = { adopters: ['Name','Contact','City','Status','Actions'], fosters: ['Foster','Animal','Status','Start','Actions'], intake: ['Animal','Source','Days Left','Status','Actions'], reminders: ['Task','Animal','Due','Priority','Actions'], followups: ['Adopter','Animal','Type','Due','Status','Actions'], inventory: ['Item','Category','Stock','Status','Actions'], donations: ['Donor','Amount','Type','Channel','Status','Actions'], lostfound: ['Report','Species','Location','Status','Actions'], volunteers: ['Name','Role','Contact','Status','Actions'] };
+            const headCols = heads[type] || ['Name','Category','Status','Actions'];
+            document.getElementById('gen-thead').innerHTML = `<tr>${headCols.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+            if (data.length === 0) {
+                document.getElementById('gen-tbody').innerHTML = `<tr><td colspan="${headCols.length}" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No records. Click "Add Record" or refresh the page.</td></tr>`;
+                return;
+            }
+
+            const rows = data.map(row => {
+                let cells = '';
+                if (type === 'adopters') cells = `<td class="fw-bold">${row.name}</td><td>${row.phone || '—'}</td><td>${row.city || '—'}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i> View</button></td>`;
+                else if (type === 'fosters') cells = `<td class="fw-bold">${row.name}</td><td>${row.animalFostered || '—'}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td>${row.startDate || '—'}</td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'intake') cells = `<td class="fw-bold">${row.name}</td><td>${row.source || '—'}</td><td>${row.daysLeft ? row.daysLeft + ' days' : 'Released'}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'reminders') cells = `<td class="fw-bold">${row.name}</td><td>${row.animalName || '—'}</td><td>${row.dueDate || '—'}</td><td>${row.priority || '—'}</td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'followups') cells = `<td class="fw-bold">${row.adopter}</td><td>${row.animal}</td><td>${row.cat}</td><td>${row.dueDate}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'inventory') cells = `<td class="fw-bold">${row.name}</td><td>${row.cat}</td><td>${row.quantity}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'donations') cells = `<td class="fw-bold">${row.name}</td><td>₹${row.amount}</td><td>${row.type}</td><td>${row.channel}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'lostfound') cells = `<td class="fw-bold">${row.name}</td><td>${row.species}</td><td>${row.location}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else if (type === 'volunteers') cells = `<td class="fw-bold">${row.name}</td><td>${row.cat}</td><td>${row.contact || '—'}</td><td><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();showGenericDetail('${type}', ${row.id})"><i class="bi bi-eye"></i></button></td>`;
+                else cells = `<td>${row.name}</td><td>${row.cat || ''}</td><td>${row.status || ''}</td><td></td>`;
+                return `<tr style="cursor:pointer;" onclick="showGenericDetail('${type}', ${row.id})">${cells}</tr>`;
+            }).join('');
+            document.getElementById('gen-tbody').innerHTML = rows;
+        }
+
+        async function showGenericDetail(type, id) {
+            const row = await db.table(type).get(id);
+            if (!row) return;
+            let html = '';
+            if (type === 'adopters') {
+                html = `<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${row.phone}</span></div><div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${row.email}</span></div><div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${row.address||'—'}</span></div><div class="detail-row"><span class="detail-label">City</span><span class="detail-value">${row.city}</span></div><div class="detail-row"><span class="detail-label">Occupation</span><span class="detail-value">${row.occupation||'—'}</span></div><div class="detail-row"><span class="detail-label">Household</span><span class="detail-value">${row.household||'—'}</span></div><div class="detail-row"><span class="detail-label">Housing</span><span class="detail-value">${row.housing||'—'}</span></div><div class="detail-row"><span class="detail-label">Yard</span><span class="detail-value">${row.yard||'—'}</span></div><div class="detail-row"><span class="detail-label">Pet Experience</span><span class="detail-value">${row.petExp||'—'}</span></div><div class="detail-row"><span class="detail-label">Other Pets</span><span class="detail-value">${row.otherPets||'—'}</span></div><div class="detail-row"><span class="detail-label">ID (masked)</span><span class="detail-value"><span class="payment-mask">${row.idNumber||'XXXX'}</span></span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>Adoption Journey</h6><div>${row.journey||'—'}</div></div><div class="drawer-section"><h6>Actions</h6><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-primary-green" onclick="showToast('Calling...')"><i class="bi bi-telephone"></i> Call</button><button class="btn btn-sm btn-outline-secondary" onclick="showToast('Email draft')"><i class="bi bi-envelope"></i> Email</button><button class="btn btn-sm btn-outline-success" onclick="showToast('Visit scheduled')"><i class="bi bi-calendar-plus"></i> Schedule Visit</button></div></div>`;
+            } else if (type === 'fosters') {
+                html = `<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">${row.phone}</span></div><div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${row.email}</span></div><div class="detail-row"><span class="detail-label">Address</span><span class="detail-value">${row.address}</span></div><div class="detail-row"><span class="detail-label">Capacity</span><span class="detail-value">${row.capacity}</span></div><div class="detail-row"><span class="detail-label">Animal Fostered</span><span class="detail-value">${row.animalFostered}</span></div><div class="detail-row"><span class="detail-label">Start Date</span><span class="detail-value">${row.startDate}</span></div>${row.endDate ? `<div class="detail-row"><span class="detail-label">End Date</span><span class="detail-value">${row.endDate}</span></div>` : ''}<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>Check-ins</h6><div>${row.checkins||'—'}</div></div><div class="drawer-section"><h6>Supplies</h6><div>${row.suppliesProvided||'—'}</div></div><div class="drawer-section"><h6>Vet Visits</h6><div>${row.vetVisits||'—'}</div></div><div class="drawer-section"><h6>Expenses</h6><div>${row.expenses||'—'}</div></div><div class="drawer-section"><h6>Outcome</h6><div class="fw-bold">${row.outcome||'—'}</div></div>`;
+            } else if (type === 'intake') {
+                html = `<div class="detail-row"><span class="detail-label">Source</span><span class="detail-value">${row.source||'—'}</span></div><div class="detail-row"><span class="detail-label">Condition</span><span class="detail-value">${row.condition||'—'}</span></div><div class="detail-row"><span class="detail-label">Vitals</span><span class="detail-value">${row.vitals||'—'}</span></div><div class="detail-row"><span class="detail-label">Tests</span><span class="detail-value">${row.tests||'—'}</span></div><div class="detail-row"><span class="detail-label">Isolation</span><span class="detail-value">${row.isolationLocation||'—'}</span></div><div class="detail-row"><span class="detail-label">Days Left</span><span class="detail-value">${row.daysLeft !== undefined ? row.daysLeft + ' days' : 'Released'}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>Observations</h6><div>${row.observations||'—'}</div></div><div class="drawer-section"><h6>Treatments</h6><div>${row.treatments||'—'}</div></div>${row.releaseDate ? `<div class="drawer-section"><h6>Release</h6><div>${row.releaseDate} by ${row.clearedBy||'—'}</div></div>` : ''}<div class="drawer-section"><h6>Notes</h6><div>${row.notes||'—'}</div></div>`;
+            } else if (type === 'reminders') {
+                const stateClass = row.status === 'Overdue' ? 'state-overdue' : row.status === 'Due Today' ? 'state-today' : 'state-upcoming';
+                html = `<div class="card-ui p-3 mb-3 ${stateClass}" style="background:var(--bg-body);border-radius:8px"><div class="fw-bold">${row.name}</div><div class="small text-muted">${row.animalName}</div></div><div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${row.cat}</span></div><div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">${row.dueDate}</span></div><div class="detail-row"><span class="detail-label">Priority</span><span class="detail-value">${row.priority}</span></div><div class="detail-row"><span class="detail-label">Assigned To</span><span class="detail-value">${row.assignedTo}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>History</h6><div>${row.history||'—'}</div></div><div class="drawer-section"><h6>Actions</h6><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-success" onclick="markReminderDone(${row.id})"><i class="bi bi-check-circle"></i> Mark Done</button><button class="btn btn-sm btn-outline-warning" onclick="showToast('Snoozed')"><i class="bi bi-clock"></i> Snooze</button><button class="btn btn-sm btn-outline-primary" onclick="showToast('Rescheduled')"><i class="bi bi-calendar"></i> Reschedule</button></div></div>`;
+            } else if (type === 'followups') {
+                html = `<div class="detail-row"><span class="detail-label">Adopter</span><span class="detail-value">${row.adopter}</span></div><div class="detail-row"><span class="detail-label">Animal</span><span class="detail-value">${row.animal}</span></div><div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${row.cat}</span></div><div class="detail-row"><span class="detail-label">Due</span><span class="detail-value">${row.dueDate}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="detail-row"><span class="detail-label">Outcome</span><span class="detail-value">${row.outcome||'Pending'}</span></div><div class="drawer-section"><h6>Wellbeing</h6><div>${row.wellbeing||'—'}</div></div><div class="drawer-section"><h6>Photo Update</h6><div>${row.photoUpdate||'—'}</div></div><div class="drawer-section"><h6>Communication Log</h6><div>${row.commLog||'—'}</div></div><div class="drawer-section"><h6>Next Action</h6><div class="fw-bold">${row.nextAction||'—'}</div></div>`;
+            } else if (type === 'inventory') {
+                html = `<div class="detail-row"><span class="detail-label">Category</span><span class="detail-value">${row.cat}</span></div><div class="detail-row"><span class="detail-label">Supplier</span><span class="detail-value">${row.supplier||'—'}</span></div><div class="detail-row"><span class="detail-label">Contact</span><span class="detail-value">${row.contact||'—'}</span></div><div class="detail-row"><span class="detail-label">Batch</span><span class="detail-value">${row.batch||'—'}</span></div><div class="detail-row"><span class="detail-label">Expiry</span><span class="detail-value">${row.expiry||'—'}</span></div><div class="detail-row"><span class="detail-label">Unit Cost</span><span class="detail-value">₹${row.unitCost}</span></div><div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${row.location||'—'}</span></div><div class="detail-row"><span class="detail-label">Species</span><span class="detail-value">${row.linkedSpecies||'—'}</span></div><div class="detail-row"><span class="detail-label">Stock</span><span class="detail-value">${row.quantity} / Reorder at ${row.threshold}</span></div><div class="detail-row"><span class="detail-label">Last Restocked</span><span class="detail-value">${row.lastRestocked||'—'}</span></div><div class="drawer-section"><h6>Stock History</h6><div>${row.stockHistory||'—'}</div></div><div class="drawer-section"><h6>Usage Log</h6><div>${row.usageLog||'—'}</div></div>${row.quantity <= row.threshold ? '<button class="btn btn-warning w-100 mt-3" onclick="showToast(\'Reorder placed\')"><i class="bi bi-arrow-clockwise"></i> Reorder Now</button>' : ''}`;
+            } else if (type === 'donations') {
+                html = `<div class="detail-row"><span class="detail-label">Donor</span><span class="detail-value">${row.name}</span></div><div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value">₹${row.amount}</span></div><div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${row.date}</span></div><div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${row.type}</span></div><div class="detail-row"><span class="detail-label">Channel</span><span class="detail-value">${row.channel}</span></div><div class="detail-row"><span class="detail-label">Payment</span><span class="detail-value">${maskPayment(row)}</span></div><div class="detail-row"><span class="detail-label">Purpose</span><span class="detail-value">${row.purpose||'General'}</span></div><div class="detail-row"><span class="detail-label">Receipt</span><span class="detail-value">${row.receiptNumber||'—'}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="detail-row"><span class="detail-label">Thank-you</span><span class="detail-value">${row.thankyouSent||'No'}</span></div>`;
+            } else if (type === 'lostfound') {
+                html = `<div class="detail-row"><span class="detail-label">Type</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.type}</span></span></div><div class="detail-row"><span class="detail-label">Species</span><span class="detail-value">${row.species}</span></div><div class="detail-row"><span class="detail-label">Breed</span><span class="detail-value">${row.breed}</span></div><div class="detail-row"><span class="detail-label">Location</span><span class="detail-value">${row.location}</span></div><div class="detail-row"><span class="detail-label">Landmark</span><span class="detail-value">${row.landmark}</span></div><div class="detail-row"><span class="detail-label">Date & Time</span><span class="detail-value">${row.date} ${row.time}</span></div><div class="detail-row"><span class="detail-label">Reporter</span><span class="detail-value">${row.reporter}</span></div><div class="detail-row"><span class="detail-label">Contact</span><span class="detail-value">${row.contact}</span></div><div class="detail-row"><span class="detail-label">Description</span><span class="detail-value">${row.description}</span></div>${row.microchip ? `<div class="detail-row"><span class="detail-label">Microchip (masked)</span><span class="detail-value"><span class="payment-mask">${row.microchip}</span></span></div>` : ''}<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>Match Suggestions</h6><div>${row.matchSuggestions||'—'}</div></div>${row.status === 'Searching' ? '<button class="btn btn-primary w-100 mt-3" onclick="showToast(\'Match search triggered\')"><i class="bi bi-search"></i> Find Matches</button>' : ''}`;
+            } else if (type === 'volunteers') {
+                html = `<div class="detail-row"><span class="detail-label">Role</span><span class="detail-value">${row.cat}</span></div><div class="detail-row"><span class="detail-label">Contact</span><span class="detail-value">${row.contact||'—'}</span></div><div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${row.email||'—'}</span></div><div class="detail-row"><span class="detail-label">Joined</span><span class="detail-value">${row.joinedDate||'—'}</span></div><div class="detail-row"><span class="detail-label">Shifts</span><span class="detail-value">${row.shifts||'—'}</span></div><div class="detail-row"><span class="detail-label">Hours This Month</span><span class="detail-value">${row.hoursThisMonth||'—'}</span></div><div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${statusClass(row.status)}">${row.status}</span></span></div><div class="drawer-section"><h6>Assigned Animals</h6><div>${row.assignedAnimals||'—'}</div></div><div class="drawer-section"><h6>Skills</h6><div>${row.skills||'—'}</div></div><div class="drawer-section"><h6>Certifications</h6><div>${row.certifications||'—'}</div></div><div class="drawer-section"><h6>Attendance Log</h6><div>${row.attendanceLog||'—'}</div></div><div class="drawer-section"><h6>Performance Notes</h6><div>${row.performanceNotes||'—'}</div></div><div class="drawer-section"><h6>Emergency Contact (masked)</h6><div><span class="payment-mask">${row.emergencyContact||'—'}</span></div></div>`;
+            }
+            document.getElementById('drawer-title').innerText = row.name;
+            document.getElementById('drawer-body').innerHTML = html;
+            new bootstrap.Offcanvas(document.getElementById('detailDrawer')).show();
+        }
+
+        async function markReminderDone(id) {
+            await db.reminders.update(id, { status: 'Done' });
+            await db.activity.add({ timestamp: new Date().toISOString(), action: `Reminder #${id} done`, type: 'success' });
+            showToast("Marked as Done");
+            loadGenericModule('reminders');
+            bootstrap.Offcanvas.getInstance(document.getElementById('detailDrawer'))?.hide();
+        }
+
+        function showDrawer(title, html) {
+            document.getElementById('drawer-title').innerText = title;
+            document.getElementById('drawer-body').innerHTML = html;
+            new bootstrap.Offcanvas(document.getElementById('detailDrawer')).show();
+        }
+        function openGenericModal() { new bootstrap.Modal(document.getElementById('genericModal')).show(); }
+
+        // ============ SETTINGS ============
+        async function loadSettingsForm() {
+            const fields = ['owner', 'officer', 'phone', 'email', 'whatsapp', 'address', 'hours'];
+            for (const f of fields) {
+                const rec = await db.settings.get(f);
+                const el = document.getElementById(f === 'officer' ? 'set-officer-name' : `set-${f}`);
+                if (rec && el) el.value = rec.value;
+            }
+            const same = await getSetting('sameAsOwner', true);
+            document.getElementById('set-same-as-owner').checked = same;
+            toggleOfficerField();
+        }
+
+        // ============ IMAGE HANDLING ============
+        let currentImgBase64 = null, cropperInstance = null, activeStream = null;
+
+        async function handleImageFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('cropper-image').src = e.target.result;
+                new bootstrap.Modal(document.getElementById('cropModal')).show();
+                document.getElementById('cropModal').addEventListener('shown.bs.modal', function handler() {
+                    if (cropperInstance) cropperInstance.destroy();
+                    cropperInstance = new Cropper(document.getElementById('cropper-image'), { aspectRatio: 1, viewMode: 1, background: false });
+                    document.getElementById('cropModal').removeEventListener('shown.bs.modal', handler);
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveCrop() {
+            if (!cropperInstance) return;
+            const canvas = cropperInstance.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200 });
+            currentImgBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('photo-preview').src = currentImgBase64;
+            document.getElementById('photo-preview').style.display = 'block';
+            document.getElementById('upload-placeholder').style.display = 'none';
+            document.getElementById('detect-btn').classList.remove('d-none');
+            bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+            cropperInstance.destroy(); cropperInstance = null;
+        }
+
+        function cancelCrop() {
+            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            document.getElementById('file-input').value = '';
+        }
+
+        function removePhoto() {
+            currentImgBase64 = null;
+            document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('upload-placeholder').style.display = 'block';
+            document.getElementById('capture-btn').classList.add('d-none');
+            document.getElementById('detect-btn').classList.add('d-none');
+            document.getElementById('webcam-feed').style.display = 'none';
+            document.getElementById('ai-generation-container').classList.add('d-none');
+            document.getElementById('ai-detect-result').classList.add('d-none');
+        }
+
+        async function startWebcam(facing = 'user') {
+            try {
+                stopAllStreams();
+                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: false });
+                const video = document.getElementById('webcam-feed');
+                video.srcObject = activeStream;
+                video.style.display = 'block';
+                document.getElementById('photo-preview').style.display = 'none';
+                document.getElementById('upload-placeholder').style.display = 'none';
+                document.getElementById('capture-btn').classList.remove('d-none');
+                showToast("Camera ready. Capture photo to analyze.");
+            } catch (err) { showToast("Camera error: " + err.message, "error"); }
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('webcam-feed');
+            if (!video.videoWidth) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            currentImgBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('photo-preview').src = currentImgBase64;
+            document.getElementById('photo-preview').style.display = 'block';
+            video.style.display = 'none';
+            document.getElementById('capture-btn').classList.add('d-none');
+            document.getElementById('detect-btn').classList.remove('d-none');
+            stopAllStreams();
+            showToast("Photo captured! Click 'AI Detect' to analyze.");
+        }
+
+        function stopAllStreams() {
+            if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+        }
+
+        // ============ AI DETECTION (RESTORED & FIXED) ============
+        async function detectWithAI() {
+            if (!currentImgBase64) return showToast("Please upload or capture a photo first.", "warning");
+            
+            const btn = document.getElementById('detect-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing...';
+            btn.disabled = true;
+
+            try {
+                // Load TensorFlow Model
+                const model = await mobilenet.load();
+                const img = document.getElementById('photo-preview');
+                
+                // Classify
+                const predictions = await model.classify(img);
+
+                if (predictions && predictions.length > 0) {
+                    const top = predictions[0].className.toLowerCase();
+                    let species = "Dog";
+                    let breed = predictions[0].className;
+
+                    // Simple heuristic mapping based on MobileNet classes
+                    if (top.includes('cat') || top.includes('tabby') || top.includes('siamese') || top.includes('persian')) {
+                        species = "Cat";
+                    } else if (top.includes('rabbit') || top.includes('hare')) {
+                        species = "Rabbit";
+                    } else if (top.includes('bird') || top.includes('parrot') || top.includes('macaw') || top.includes('cockatoo')) {
+                        species = "Parrot/Bird";
+                    } else if (top.includes('hamster')) {
+                        species = "Hamster";
+                    } else if (top.includes('horse')) {
+                        species = "Horse";
+                    }
+
+                    // Update Form Dropdowns
+                    document.getElementById('animal-species').value = species;
+                    updateBreedList(); // Refresh breed datalist for the selected species
+                    
+                    // Set the breed input (capitalize first letter for neatness)
+                    const cleanBreed = breed.charAt(0).toUpperCase() + breed.slice(1);
+                    document.getElementById('animal-breed').value = cleanBreed;
+
+                    // Show result box
+                    document.getElementById('ai-detect-result').classList.remove('d-none');
+                    document.getElementById('ai-detect-result').innerHTML = `
+                        <i class="bi bi-magic text-success"></i> <strong>AI Detected:</strong> ${species} - ${cleanBreed}
+                        <span class="badge bg-primary ms-2">${Math.round(predictions[0].probability * 100)}% match</span>
+                    `;
+                    showToast("AI successfully detected the species!", "success");
+                }
+            } catch (error) {
+                console.error("AI Detection Error:", error);
+                showToast("AI failed to analyze image. Please enter details manually.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ============ AI PHOTO GENERATION ============
+        async function generatePhotoOptions() {
+            const species = document.getElementById('animal-species').value || 'Dog';
+            const breed = document.getElementById('animal-breed').value || 'Mixed';
+            const grid = document.getElementById('generated-grid');
+            const container = document.getElementById('ai-generation-container');
+            const regenBtn = document.getElementById('regenerate-btn');
+            
+            container.classList.remove('d-none');
+            regenBtn.classList.remove('d-none');
+            grid.innerHTML = `<div class="col-12 text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted small">Finding best images for <strong>${breed} ${species}</strong>...</p></div>`;
+
+            let images = [];
+
+            // Try Real API first for Dogs
+            if (species === 'Dog' && breed !== 'Mixed') {
+                try {
+                    const res = await fetch(`https://dog.ceo/api/breed/${breed.toLowerCase().replace(/\s+/g, '')}/images/random/2`);
+                    const data = await res.json();
+                    if (data.status === 'success' && data.message.length > 0) images = data.message;
+                } catch (e) { console.log("Dog API failed, using AI."); }
+            }
+
+            // Fill remaining with AI Generation (Pollinations)
+            const aiPrompt = encodeURIComponent(`Realistic portrait photo of a ${breed} ${species}, shelter adoption photo, soft lighting, highly detailed, 4k`);
+            const seed = Math.floor(Math.random() * 1000000);
+            
+            while (images.length < 4) {
+                images.push(`https://image.pollinations.ai/prompt/${aiPrompt}?width=600&height=600&nologo=true&seed=${seed + images.length}`);
+            }
+
+            setTimeout(() => {
+                grid.innerHTML = images.map(url => {
+                    const isAI = url.includes('pollinations');
+                    return `<div class="col-6 col-md-3"><div class="ai-image-option" onclick="selectGenerated('${url}', this)">${isAI ? '<span class="ai-badge">AI</span>' : ''}<img src="${url}" onerror="this.onerror=null; this.src='${getPlaceholder(species)}'; this.style.opacity='0.5';"></div></div>`;
+                }).join('');
+            }, 1000);
+        }
+
+        function selectGenerated(url, el) {
+            currentImgBase64 = url;
+            document.getElementById('photo-preview').src = url;
+            document.getElementById('photo-preview').style.display = 'block';
+            document.getElementById('upload-placeholder').style.display = 'none';
+            document.getElementById('detect-btn').classList.remove('d-none');
+            document.querySelectorAll('.ai-image-option').forEach(i => i.style.border = 'none');
+            el.style.border = '3px solid var(--primary)';
+            showToast("Image selected!");
+        }
+
+        function populateSpeciesDropdown() {
+            const sel = document.getElementById('animal-species');
+            const filter = document.getElementById('filter-species');
+            Object.keys(SPECIES).forEach(s => {
+                sel.innerHTML += `<option value="${s}">${s}</option>`;
+                filter.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+            updateBreedList();
+        }
+
+        function updateBreedList() {
+            const sp = document.getElementById('animal-species').value;
+            const list = document.getElementById('breed-list');
+            list.innerHTML = '';
+            if (SPECIES[sp]) SPECIES[sp].breeds.forEach(b => list.innerHTML += `<option value="${b}">`);
+        }
+
+        async function toggleTheme() {
+            const html = document.documentElement;
+            const t = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-bs-theme', t);
+            document.getElementById('theme-icon').className = t === 'light' ? 'bi bi-moon-stars' : 'bi bi-sun';
+            await db.settings.put({ key: 'theme', value: t });
+        }
+
+        function resetData() {
+            if (!confirm("This will delete ALL data and reseed fresh. Continue?")) return;
+            db.delete().then(() => { showToast("Reloading..."); setTimeout(() => location.reload(), 800); });
+        }
+
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await db.open();
+                console.log('✅ DB opened');
+
+                const seedResults = await ensureSeed();
+                console.log('✅ Seed complete:', seedResults);
+
+                populateSpeciesDropdown();
+                await applySettingsLive();
+                console.log('✅ Settings applied');
+
+                const theme = await getSetting('theme', 'light');
+                if (theme === 'dark') await toggleTheme();
+
+                const page = window.location.hash.replace('#', '') || 'dashboard';
+                nav(page);
+                console.log('✅ Navigation complete — page:', page);
+
+                const totalAnimals = await db.animals.count();
+                const totalAdopters = await db.adopters.count();
+                const banner = document.getElementById('seed-status');
+                banner.className = 'seed-status success show';
+                banner.innerHTML = `<i class="bi bi-check-circle-fill"></i> Loaded: ${totalAnimals} animals, ${totalAdopters} adopters`;
+                setTimeout(() => banner.classList.remove('show'), 4000);
+            } catch (e) {
+                console.error('❌ INIT FAILED:', e);
+                const banner = document.getElementById('seed-status');
+                banner.className = 'seed-status error show';
+                banner.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Init failed: ${e.message}`;
+                showToast('Init failed: ' + e.message, 'error');
+            }
+
             document.getElementById('animal-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const newId = await db.animals.add({
-                    name: document.getElementById('animal-name').value,
-                    species: document.getElementById('animal-species').value,
-                    breed: document.getElementById('animal-breed').value,
-                    tags: document.getElementById('animal-tags').value.split(',').map(t => t.trim()),
-                    age: 'Unknown',
-                    status: 'Available',
-                    image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop'
-                });
-                
-                // Add a blank medical record for new pets
-                await db.medicalRecords.add({
-                    animalId: newId,
-                    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-                    type: 'Intake',
-                    title: 'Initial Health Check',
-                    description: 'Pending full medical evaluation.'
-                });
+                await db.animals.add({ name: document.getElementById('animal-name').value, species: document.getElementById('animal-species').value, breed: document.getElementById('animal-breed').value, ageYears: parseInt(document.getElementById('animal-age-yr').value), ageMonths: parseInt(document.getElementById('animal-age-mo').value), gender: document.getElementById('animal-gender').value, weight: parseFloat(document.getElementById('animal-weight').value), tags: document.getElementById('animal-tags').value.split(',').map(t=>t.trim()).filter(Boolean), status: 'Available', image: currentImgBase64 || null, isVaccinated: document.getElementById('med-vaccinated').checked, isSterilized: document.getElementById('med-sterilized').checked, isMicrochipped: document.getElementById('med-microchipped').checked, intakeDate: new Date().toISOString().split('T')[0] });
+                await db.activity.add({ timestamp: new Date().toISOString(), action: `Added new animal: ${document.getElementById('animal-name').value}`, type: 'success' });
+                bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide(); e.target.reset(); removePhoto();
+                showToast("Animal added!"); nav('animals');
+            });
 
-                bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
-                e.target.reset();
-                navigateTo('animals'); 
+            document.getElementById('new-app-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await db.applications.add({ adopterName: document.getElementById('app-name').value, phone: document.getElementById('app-phone').value, email: document.getElementById('app-email').value, animalId: parseInt(document.getElementById('app-animal').value), status: 'Pending', eligibilityScore: 75, date: new Date().toISOString() });
+                bootstrap.Modal.getInstance(document.getElementById('newAppModal')).hide(); e.target.reset();
+                showToast("Application submitted"); nav('applications');
+            });
+
+            document.getElementById('export-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await db.exports.add({ animalId: parseInt(document.getElementById('exp-animal').value), destinationCountry: document.getElementById('exp-country').value, receiverName: document.getElementById('exp-receiver-name').value, receiverContact: document.getElementById('exp-receiver-contact').value, transportMode: document.getElementById('exp-transport').value, plannedDate: document.getElementById('exp-date').value, status: 'Draft', documents: [] });
+                bootstrap.Modal.getInstance(document.getElementById('newExportModal')).hide(); e.target.reset();
+                showToast("Export case created"); nav('export');
+            });
+
+            document.getElementById('generic-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await db.table(currentGenericType).add({ name: document.getElementById('g-name').value, cat: document.getElementById('g-cat').value, status: document.getElementById('g-status').value });
+                bootstrap.Modal.getInstance(document.getElementById('genericModal')).hide(); e.target.reset();
+                showToast("Record added"); loadGenericModule(currentGenericType);
+            });
+
+            document.getElementById('staff-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newName = document.getElementById('staff-name').value;
+                const same = await getSetting('sameAsOwner', true);
+                await db.settings.put({ key: 'staffName', value: newName });
+                await db.settings.put({ key: 'staffRole', value: document.getElementById('staff-role').value });
+                if (same) { await db.settings.put({ key: 'owner', value: newName }); await db.settings.put({ key: 'officer', value: newName }); }
+                else { await db.settings.put({ key: 'officer', value: newName }); }
+                await applySettingsLive();
+                bootstrap.Modal.getInstance(document.getElementById('staffModal')).hide();
+                showToast("Profile updated");
+            });
+
+            document.getElementById('identity-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const owner = document.getElementById('set-owner').value;
+                const same = document.getElementById('set-same-as-owner').checked;
+                const officer = same ? owner : document.getElementById('set-officer-name').value;
+                await db.settings.put({ key: 'owner', value: owner });
+                await db.settings.put({ key: 'sameAsOwner', value: same });
+                await db.settings.put({ key: 'officer', value: officer });
+                await db.settings.put({ key: 'staffName', value: officer });
+                await db.settings.put({ key: 'staffRole', value: same ? 'Owner & Adoption Officer' : 'Adoption Officer' });
+                await db.activity.add({ timestamp: new Date().toISOString(), action: `Identity updated: ${owner}`, type: 'info' });
+                await applySettingsLive();
+                showToast("Identity updated everywhere");
+            });
+
+            document.getElementById('contact-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                for (const f of ['phone','email','whatsapp','address','hours']) {
+                    await db.settings.put({ key: f, value: document.getElementById(`set-${f}`).value });
+                }
+                await applySettingsLive();
+                showToast("Contact updated");
             });
 
             document.getElementById('visit-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                await db.visits.add({
-                    applicationId: parseInt(document.getElementById('visit-app-id').value),
-                    animalId: 1, 
-                    date: document.getElementById('visit-date').value,
-                    time: document.getElementById('visit-time').value,
-                    type: 'At the shelter',
-                    status: 'Scheduled'
-                });
-                e.target.reset();
-                loadVisits();
-                alert("Visit scheduled!");
+                await db.visits.add({ applicationId: parseInt(document.getElementById('visit-app-id').value), animalId: 1, date: document.getElementById('visit-date').value, time: document.getElementById('visit-time').value, type: 'Meet & Greet', status: 'Scheduled' });
+                e.target.reset(); loadVisits();
+                showToast("Visit booked!");
             });
-        }
+
+            document.getElementById('addAnimalModal').addEventListener('hidden.bs.modal', stopAllStreams);
+        });
+
+        // Globals
+        window.nav = nav; window.toggleTheme = toggleTheme; window.applySettingsLive = applySettingsLive;
+        window.startWebcam = startWebcam; window.capturePhoto = capturePhoto; window.stopAllStreams = stopAllStreams;
+        window.handleImageFile = handleImageFile; window.saveCrop = saveCrop; window.cancelCrop = cancelCrop;
+        window.removePhoto = removePhoto; window.generatePhotoOptions = generatePhotoOptions; window.selectGenerated = selectGenerated;
+        window.updateBreedList = updateBreedList; window.showAnimalDetail = showAnimalDetail;
+        window.applyAnimalFilters = applyAnimalFilters; window.fixOnePhoto = fixOnePhoto;
+        window.fixMissingPhotos = fixMissingPhotos; window.updateAppStatus = updateAppStatus;
+        window.approveApp = approveApp; window.rejectApp = rejectApp; window.showAppDetail = showAppDetail;
+        window.showExportDetail = showExportDetail; window.loadGenericModule = loadGenericModule;
+        window.showGenericDetail = showGenericDetail; window.markReminderDone = markReminderDone;
+        window.openGenericModal = openGenericModal; window.showDrawer = showDrawer;
+        window.resetData = resetData; window.loadActivityFeed = loadActivityFeed;
+        window.toggleOfficerField = toggleOfficerField; window.detectWithAI = detectWithAI;
     </script>
 </body>
 </html>
