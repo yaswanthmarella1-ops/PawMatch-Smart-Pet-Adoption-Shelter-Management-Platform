@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawMatch | Premium Shelter Management</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    
+    <style>
+        :root {
+            --primary-green: #0a5c4a;
+            --primary-hover: #084839;
+            --bg-cream: #f8f9fa;
+            --text-main: #1a1a1a;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Layout & Sidebar */
+        #wrapper { display: flex; min-height: 100vh; }
+        #sidebar-wrapper {
+            min-width: 260px; max-width: 260px;
+            background-color: var(--primary-green);
+            color: white; display: flex; flex-direction: column;
+        }
+        .sidebar-heading {
+            padding: 24px; font-size: 1.5rem; font-weight: 800;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 10px;
+        }
+        #sidebar-wrapper .nav-link {
+            color: rgba(255, 255, 255, 0.7); padding: 16px 24px; font-weight: 600;
+            display: flex; align-items: center; gap: 12px;
+            border-left: 4px solid transparent; transition: 0.2s; text-decoration: none; cursor: pointer;
+        }
+        #sidebar-wrapper .nav-link:hover, #sidebar-wrapper .nav-link.active {
+            color: white; background-color: rgba(255, 255, 255, 0.05); border-left-color: white;
+        }
+        .user-profile {
+            margin-top: auto; padding: 24px; border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8); font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        #page-content-wrapper {
+            flex: 1; background-color: var(--bg-cream);
+            display: flex; flex-direction: column; min-width: 0;
+        }
+        .top-navbar {
+            background-color: white !important; border-bottom: 1px solid #e5e7eb;
+            padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .content-area { padding: 32px; }
+
+        /* Components */
+        .btn-primary-green {
+            background-color: var(--primary-green); color: white; font-weight: 600;
+            border: none; padding: 10px 24px; border-radius: 50px; transition: 0.2s;
+        }
+        .btn-primary-green:hover { background-color: var(--primary-hover); color: white; transform: translateY(-1px); }
+        .btn-outline-green {
+            color: var(--primary-green); border: 1px solid var(--primary-green);
+            background: transparent; font-weight: 600; padding: 10px 24px; border-radius: 50px;
+        }
+        .btn-outline-green:hover { background: var(--primary-green); color: white; }
+        
+        .form-control, .form-select { border-radius: 8px; padding: 12px 16px; border: 1px solid #e5e7eb; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(10, 92, 74, 0.1); }
+
+        .stat-card, .chart-card, .table-container {
+            background: white; border-radius: 16px; padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6;
+        }
+        .stat-number { font-size: 2.5rem; font-weight: 800; margin: 8px 0 0 0; color: var(--text-main); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+
+        /* Animal Cards */
+        .animal-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: 0.3s; height: 100%; cursor: pointer;
+        }
+        .animal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: var(--primary-green); }
+        .animal-img { width: 100%; height: 220px; object-fit: cover; background: #eaeaea; }
+        .animal-body { padding: 20px; }
+        
+        .status-badge { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 50px; }
+        .status-Available { background: #d1fae5; color: #065f46; }
+        .status-UnderReview { background: #fef3c7; color: #92400e; }
+        .status-Adopted { background: #dbeafe; color: #1e40af; }
+        
+        .tag-badge { background: #f3f4f6; color: #4b5563; font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+
+        /* Detail View Timeline */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+        .timeline-item { position: relative; margin-bottom: 24px; }
+        .timeline-icon {
+            position: absolute; left: -30px; top: 2px; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--primary-green); border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary-green);
+        }
+        .timeline-date { font-size: 0.85rem; font-weight: 700; color: var(--primary-green); margin-bottom: 4px; }
+        .timeline-title { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+        .timeline-desc { font-size: 0.9rem; color: var(--text-muted); }
+
+        .profile-header-card { background: white; border-radius: 16px; padding: 32px; border: 1px solid #f3f4f6; margin-bottom: 24px; }
+        .profile-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; }
+    </style>
+</head>
+<body>
+
+    <div id="wrapper">
+        <!-- SIDEBAR -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <i class="bi bi-paw-fill"></i> PawMatch
+                <span class="badge bg-light text-dark ms-2" style="font-size: 0.6rem;">STAFF</span>
+            </div>
+            <div class="d-flex flex-column mt-3">
+                <a class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+                <a class="nav-link" data-page="animals"><i class="bi bi-heart-pulse"></i> Animals & Medical</a>
+                <a class="nav-link" data-page="applications"><i class="bi bi-file-earmark-text"></i> Applications</a>
+                <a class="nav-link" data-page="visits"><i class="bi bi-calendar-event"></i> Visit Calendar</a>
+            </div>
+            <div class="user-profile">Neha S. <br><small>Adoption Officer</small></div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div id="page-content-wrapper">
+            <div class="top-navbar">
+                <h4 class="mb-0 fw-bold" id="page-title">Good morning, Neha</h4>
+                <button class="btn btn-primary-green" data-bs-toggle="modal" data-bs-target="#addAnimalModal">
+                    <i class="bi bi-plus-lg me-1"></i> Add Animal
+                </button>
+            </div>
+
+            <div class="content-area">
+                
+                <!-- DASHBOARD SECTION -->
+                <div id="dashboard-section" class="page-section">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Animals in care</span>
+                                <h2 class="stat-number" id="stat-animals">0</h2>
+                                <span class="text-success fw-bold" style="font-size: 0.85rem;" id="stat-available">0 available</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Pending Applications</span>
+                                <h2 class="stat-number" id="stat-apps">0</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Visits this week</span>
+                                <h2 class="stat-number" id="stat-visits">0</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <span class="text-muted fw-bold" style="font-size:0.85rem;">Adoptions this month</span>
+                                <h2 class="stat-number" style="color: var(--primary-green);">18</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="chart-card">
+                                <h6 class="fw-bold mb-4">Animal Status</h6>
+                                <div class="chart-container"><canvas id="statusChart"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="chart-card">
+                                <h6 class="fw-bold mb-4">Adoption Trends</h6>
+                                <div class="chart-container"><canvas id="trendChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANIMALS GRID SECTION -->
+                <div id="animals-section" class="page-section d-none">
+                    <div class="mb-4">
+                        <input type="text" id="search-animals" class="form-control w-50 shadow-sm" placeholder="Search by name, breed or trait..." onkeyup="filterAnimals()">
+                    </div>
+                    <div class="row g-4" id="animals-grid"></div>
+                </div>
+
+                <!-- ANIMAL DETAIL SECTION (NEW) -->
+                <div id="animal-detail-section" class="page-section d-none">
+                    <button class="btn btn-outline-green mb-4" onclick="navigateTo('animals')">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Animals
+                    </button>
+
+                    <div class="profile-header-card">
+                        <div class="row g-4">
+                            <div class="col-md-5">
+                                <img id="detail-img" src="" class="profile-img" alt="Animal">
+                            </div>
+                            <div class="col-md-7">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h1 class="fw-bold mb-0" id="detail-name">Name</h1>
+                                    <span class="status-badge" id="detail-status">Status</span>
+                                </div>
+                                <p class="text-muted fs-5 mb-4" id="detail-meta">Species · Breed · Age</p>
+                                
+                                <h5 class="fw-bold mt-4 mb-3">Traits</h5>
+                                <div class="d-flex flex-wrap gap-2 mb-4" id="detail-tags"></div>
+
+                                <h5 class="fw-bold mt-4 mb-3">Adoption Readiness</h5>
+                                <div class="d-flex gap-4">
+                                    <div><i class="bi bi-check-circle-fill text-success"></i> Vaccinated</div>
+                                    <div><i class="bi bi-check-circle-fill text-success"></i> Sterilized</div>
+                                    <div><i class="bi bi-check-circle-fill text-success"></i> Microchipped</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="chart-card">
+                                <h5 class="fw-bold mb-4">Medical Timeline</h5>
+                                <div class="timeline" id="detail-timeline">
+                                    <!-- Medical records injected here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="chart-card">
+                                <h5 class="fw-bold mb-3">Quick Actions</h5>
+                                <button class="btn btn-primary-green w-100 mb-2">Apply for Adoption</button>
+                                <button class="btn btn-outline-green w-100">Schedule Vet Visit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPLICATIONS SECTION -->
+                <div id="applications-section" class="page-section d-none">
+                    <div class="table-container">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Applicant</th><th>Animal</th><th>Eligibility</th><th>Status</th><th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applications-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VISITS SECTION -->
+                <div id="visits-section" class="page-section d-none">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="chart-card">
+                                <h5 class="fw-bold mb-4">Upcoming Visits</h5>
+                                <div id="visits-list" class="d-flex flex-column gap-3"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-card">
+                                <h5 class="fw-bold mb-4">Schedule Visit</h5>
+                                <form id="visit-form">
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Select Application</label>
+                                        <select class="form-select" id="visit-app-id" required></select>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Date</label>
+                                            <input type="date" class="form-control" id="visit-date" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">Time</label>
+                                            <input type="time" class="form-control" id="visit-time" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary-green w-100 py-2">Book Visit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ANIMAL MODAL -->
+    <div class="modal fade" id="addAnimalModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Add New Animal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="animal-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Name</label>
+                            <input type="text" class="form-control" id="animal-name" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Species</label>
+                                <select class="form-select" id="animal-species">
+                                    <option>Dog</option><option>Cat</option><option>Rabbit</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Breed</label>
+                                <input type="text" class="form-control" id="animal-breed" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted" style="font-size:0.85rem;">Traits (comma separated)</label>
+                            <input type="text" class="form-control" id="animal-tags" placeholder="e.g. Good with kids, Calm">
+                        </div>
+                        <button type="submit" class="btn btn-primary-green w-100 py-2">Save Animal</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIBRARIES -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // --- 1. DATABASE SETUP (V2 to include Medical Records) ---
+        const db = new Dexie('PawMatchDB_V2');
+        db.version(1).stores({
+            animals: '++id, name, species, breed, status',
+            applications: '++id, adopterName, animalId, status',
+            visits: '++id, applicationId, date, time',
+            medicalRecords: '++id, animalId, date, type, title, description'
+        });
+
+        async function seedDatabase() {
+            const count = await db.animals.count();
+            if (count > 0) return;
+
+            await db.animals.bulkAdd([
+                { name: 'Bruno', species: 'Dog', breed: 'Labrador mix', age: '3 yrs', status: 'Available', tags: ['Good with kids', 'House-trained'], image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Mishti', species: 'Cat', breed: 'Domestic shorthair', age: '1 yr', status: 'Under Review', tags: ['Calm', 'Litter-trained'], image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Sheru', species: 'Dog', breed: 'Indie', age: '5 yrs', status: 'Available', tags: ['Leash-trained', 'Needs yard'], image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Coco', species: 'Rabbit', breed: 'Dutch', age: '2 yrs', status: 'Available', tags: ['Bonded pair', 'Gentle'], image: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Luna', species: 'Cat', breed: 'Persian mix', age: '7 yrs', status: 'Under Review', tags: ['Senior', 'Indoor only'], image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Rocky', species: 'Dog', breed: 'Beagle', age: '8 mos', status: 'Available', tags: ['Playful', 'In training'], image: 'https://images.unsplash.com/photo-1537151608804-ea2d1193d2ea?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Tara', species: 'Dog', breed: 'Indie', age: '2 yrs', status: 'Available', tags: ['Good with cats', 'Vaccinated'], image: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?q=80&w=600&auto=format&fit=crop' },
+                { name: 'Oreo', species: 'Cat', breed: 'Tuxedo', age: '4 mos', status: 'Available', tags: ['Kitten', 'Social'], image: 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?q=80&w=600&auto=format&fit=crop' }
+            ]);
+
+            await db.applications.bulkAdd([
+                { adopterName: 'Priya Rao', animalId: 1, date: '2026-10-22', status: 'Visit Scheduled', eligibilityScore: 86 },
+                { adopterName: 'Arjun Mehra', animalId: 2, date: '2026-10-24', status: 'Under Review', eligibilityScore: 65 },
+                { adopterName: 'Kavya Iyer', animalId: 3, date: '2026-10-25', status: 'Awaiting Decision', eligibilityScore: 92 }
+            ]);
+
+            await db.visits.bulkAdd([
+                { applicationId: 1, animalId: 1, date: '2026-11-07', time: '11:00', type: 'At the shelter', status: 'Scheduled' }
+            ]);
+
+            // Seed Medical Records
+            await db.medicalRecords.bulkAdd([
+                { animalId: 1, date: '12 Oct 2026', type: 'Vet Check', title: 'Routine exam - fit for adoption', description: 'Weight 28 kg. Mild hip dysplasia, joint supplement continued. Dr. A. Mehta' },
+                { animalId: 1, date: '20 Sep 2026', type: 'Behaviour', title: 'Temperament assessment - passed', description: 'Good with children 6+, needs slow dog intros, not cat-safe.' },
+                { animalId: 1, date: '28 Aug 2026', type: 'Surgery', title: 'Neutering', description: 'Uncomplicated recovery; sutures removed 7 Sep.' },
+                { animalId: 2, date: '10 Oct 2026', type: 'Vaccine', title: 'Rabies Booster', description: 'Administered by Dr. S. Sharma. Next due Oct 2027.' }
+            ]);
+        }
+
+        // --- 2. CHART.JS SETUP ---
+        let statusChartInstance = null;
+        let trendChartInstance = null;
+
+        async function renderCharts() {
+            const animals = await db.animals.toArray();
+            const available = animals.filter(a => a.status === 'Available').length;
+            const review = animals.filter(a => a.status === 'Under Review').length;
+            const adopted = animals.filter(a => a.status === 'Adopted').length;
+
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            if(statusChartInstance) statusChartInstance.destroy();
+            statusChartInstance = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Under Review', 'Adopted'],
+                    datasets: [{ data: [available, review, adopted], backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
+            });
+
+            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+            if(trendChartInstance) trendChartInstance.destroy();
+            trendChartInstance = new Chart(ctxTrend, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{ label: 'Adoptions', data: [5, 8, 12, 10, 15, 18], backgroundColor: '#0a5c4a', borderRadius: 6, barThickness: 30 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { borderDash: [4, 4] } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        // --- 3. APP LOGIC ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            await seedDatabase();
+            setupNavigation();
+            setupForms();
+            navigateTo('dashboard'); 
+        });
+
+        window.navigateTo = navigateTo;
+        window.filterAnimals = filterAnimals;
+        window.approveApplication = approveApplication;
+        window.showAnimalDetail = showAnimalDetail;
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    navigateTo(e.currentTarget.getAttribute('data-page'));
+                });
+            });
+        }
+
+        function navigateTo(page) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('d-none'));
+            document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+
+            // Handle Detail view separately (it doesn't have a nav link)
+            if(page === 'animal-detail') {
+                document.getElementById('animal-detail-section').classList.remove('d-none');
+                document.querySelector('.nav-link[data-page="animals"]').classList.add('active');
+                document.getElementById('page-title').innerText = "Animal Profile";
+                return;
+            }
+
+            const target = document.getElementById(`${page}-section`);
+            if(target) target.classList.remove('d-none');
+            
+            const activeNav = document.querySelector(`.nav-link[data-page="${page}"]`);
+            if(activeNav) activeNav.classList.add('active');
+
+            const titles = { 'dashboard': 'Good morning, Neha', 'animals': 'Animals & Medical', 'applications': 'Applications Overview', 'visits': 'Visit Calendar' };
+            document.getElementById('page-title').innerText = titles[page];
+
+            if (page === 'dashboard') { loadDashboardStats(); renderCharts(); }
+            if (page === 'animals') { loadAnimals(); }
+            if (page === 'applications') { loadApplications(); }
+            if (page === 'visits') { loadVisits(); }
+        }
+
+        async function loadDashboardStats() {
+            const animals = await db.animals.toArray();
+            const apps = await db.applications.toArray();
+            const visits = await db.visits.toArray();
+
+            document.getElementById('stat-animals').innerText = animals.length;
+            document.getElementById('stat-available').innerText = `${animals.filter(a => a.status === 'Available').length} available`;
+            document.getElementById('stat-apps').innerText = apps.filter(a => a.status !== 'Approved').length;
+            document.getElementById('stat-visits').innerText = visits.length;
+        }
+
+        async function loadAnimals() {
+            const animals = await db.animals.toArray();
+            renderAnimalsGrid(animals);
+        }
+
+        function renderAnimalsGrid(animals) {
+            const grid = document.getElementById('animals-grid');
+            grid.innerHTML = '';
+            
+            animals.forEach(animal => {
+                const tagsHtml = (animal.tags || []).map(t => `<span class="tag-badge">${t}</span>`).join('');
+                const statusClass = animal.status ? animal.status.replace(' ', '') : 'Available';
+                // Make the card clickable using onclick="showAnimalDetail(id)"
+                grid.innerHTML += `
+                    <div class="col-md-6 col-xl-3">
+                        <div class="animal-card" onclick="showAnimalDetail(${animal.id})">
+                            <img src="${animal.image}" class="animal-img" alt="${animal.name}" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop'">
+                            <div class="animal-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="fw-bold mb-0">${animal.name}</h5>
+                                    <span class="status-badge status-${statusClass}">${animal.status}</span>
+                                </div>
+                                <div class="text-muted mb-3" style="font-size: 0.85rem;">${animal.species} · ${animal.breed} · ${animal.age}</div>
+                                <div class="d-flex flex-wrap gap-2">${tagsHtml}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function filterAnimals() {
+            const term = document.getElementById('search-animals').value.toLowerCase();
+            const animals = await db.animals.toArray();
+            renderAnimalsGrid(animals.filter(a => a.name.toLowerCase().includes(term) || a.breed.toLowerCase().includes(term)));
+        }
+
+        // --- DETAIL VIEW LOGIC ---
+        async function showAnimalDetail(id) {
+            const animal = await db.animals.get(id);
+            const records = await db.medicalRecords.where('animalId').equals(id).toArray();
+            
+            if(!animal) return;
+
+            // Populate Header
+            document.getElementById('detail-img').src = animal.image;
+            document.getElementById('detail-name').innerText = animal.name;
+            document.getElementById('detail-meta').innerText = `${animal.species} · ${animal.breed} · ${animal.age}`;
+            
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = animal.status;
+            statusEl.className = `status-badge status-${animal.status.replace(' ', '')}`;
+
+            // Populate Tags
+            document.getElementById('detail-tags').innerHTML = (animal.tags || []).map(t => `<span class="tag-badge">${t}</span>`).join('');
+
+            // Populate Timeline
+            const timeline = document.getElementById('detail-timeline');
+            timeline.innerHTML = '';
+            
+            if(records.length === 0) {
+                timeline.innerHTML = '<p class="text-muted">No medical records found for this animal.</p>';
+            } else {
+                // Sort records by date descending (simple string sort for demo)
+                records.sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                records.forEach(rec => {
+                    timeline.innerHTML += `
+                        <div class="timeline-item">
+                            <div class="timeline-icon"></div>
+                            <div class="timeline-date">${rec.date}</div>
+                            <div class="timeline-title">${rec.title} <span class="badge bg-light text-dark ms-2" style="font-size:0.7rem;">${rec.type}</span></div>
+                            <div class="timeline-desc">${rec.description}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Switch View
+            navigateTo('animal-detail');
+        }
+
+        // --- REMAINING APP LOGIC (Applications & Visits) ---
+        async function loadApplications() {
+            const apps = await db.applications.toArray();
+            const animals = await db.animals.toArray();
+            const tbody = document.getElementById('applications-table-body');
+            tbody.innerHTML = '';
+
+            apps.forEach(app => {
+                const animal = animals.find(a => a.id === app.animalId);
+                const animalName = animal ? animal.name : 'Unknown';
+                let actionBtn = app.status !== 'Approved' 
+                    ? `<button type="button" class="btn btn-sm btn-primary-green" onclick="approveApplication(${app.id}, ${app.animalId})">Approve</button>`
+                    : `<span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Adopted</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${app.adopterName}</td>
+                        <td>${animalName}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress" style="width: 80px; height: 6px;">
+                                    <div class="progress-bar ${app.eligibilityScore > 75 ? 'bg-success' : 'bg-warning'}" style="width: ${app.eligibilityScore}%"></div>
+                                </div>
+                                <span class="small fw-bold">${app.eligibilityScore}/100</span>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">${app.status}</span></td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function approveApplication(appId, animalId) {
+            if(confirm("Approve adoption? Animal will be marked Adopted.")) {
+                await db.applications.update(appId, { status: 'Approved' });
+                await db.animals.update(animalId, { status: 'Adopted' });
+                loadApplications(); 
+            }
+        }
+
+        async function loadVisits() {
+            const visits = await db.visits.toArray();
+            const apps = await db.applications.toArray();
+            const list = document.getElementById('visits-list');
+            list.innerHTML = '';
+            
+            visits.forEach(v => {
+                const app = apps.find(a => a.id === v.applicationId);
+                list.innerHTML += `
+                    <div class="border rounded p-3 d-flex align-items-center gap-3 bg-white">
+                        <div class="bg-light p-3 rounded text-center" style="min-width: 90px;">
+                            <i class="bi bi-calendar-event fs-5 text-success"></i>
+                            <div class="small fw-bold mt-1 text-dark">${v.date}</div>
+                        </div>
+                        <div>
+                            <div class="fw-bold">${v.type} with ${app ? app.adopterName : 'Applicant'}</div>
+                            <div class="text-muted small"><i class="bi bi-clock"></i> ${v.time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const select = document.getElementById('visit-app-id');
+            select.innerHTML = '<option value="">Select Application...</option>';
+            apps.forEach(a => select.innerHTML += `<option value="${a.id}">${a.adopterName} - App #${a.id}</option>`);
+        }
+
+        function setupForms() {
+            document.getElementById('animal-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newId = await db.animals.add({
+                    name: document.getElementById('animal-name').value,
+                    species: document.getElementById('animal-species').value,
+                    breed: document.getElementById('animal-breed').value,
+                    tags: document.getElementById('animal-tags').value.split(',').map(t => t.trim()),
+                    age: 'Unknown',
+                    status: 'Available',
+                    image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop'
+                });
+                
+                // Add a blank medical record for new pets
+                await db.medicalRecords.add({
+                    animalId: newId,
+                    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    type: 'Intake',
+                    title: 'Initial Health Check',
+                    description: 'Pending full medical evaluation.'
+                });
+
+                bootstrap.Modal.getInstance(document.getElementById('addAnimalModal')).hide();
+                e.target.reset();
+                navigateTo('animals'); 
+            });
+
+            document.getElementById('visit-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await db.visits.add({
+                    applicationId: parseInt(document.getElementById('visit-app-id').value),
+                    animalId: 1, 
+                    date: document.getElementById('visit-date').value,
+                    time: document.getElementById('visit-time').value,
+                    type: 'At the shelter',
+                    status: 'Scheduled'
+                });
+                e.target.reset();
+                loadVisits();
+                alert("Visit scheduled!");
+            });
+        }
+    </script>
+</body>
+</html>
